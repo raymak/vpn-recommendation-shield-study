@@ -1,0 +1,37 @@
+{
+  "name": "VPN Recommendation Shield Study (bug 1478770)",
+  "description": "__MSG_extensionDescription__",
+  "version": "2.0.0",
+  "manifest_version": 2,
+  "applications": {
+    "gecko": {
+      "id": "vpn-recommendation-study@shield.mozilla.org",
+      "strict_min_version": "61.0a1"
+    }
+  },
+  "experiment_apis": {
+    "vpnRecommender": {
+      "schema": "./privileged/vpnRecommender/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "script": "./privileged/vpnRecommender/api.js",
+        "paths": [["experiments", "vpnRecommender"]]
+      }
+    },
+    "study": {
+      "schema": "./privileged/study/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "script": "./privileged/study/api.js",
+        "paths": [["study"]]
+      }
+    }
+  },
+  "permissions": ["management", "alarms", "storage"],
+  "background": {
+    "scripts": ["studySetup.js", "background.js", "feature.js"]
+  },
+  "icons": {
+    "48": "icons/shield-icon.svg"
+  }
+}

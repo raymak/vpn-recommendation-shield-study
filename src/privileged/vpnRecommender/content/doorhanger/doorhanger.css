@@ -1,0 +1,442 @@
+/*! This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+/* global variables */
+:root {
+  --primary-color: #f1f1f1;
+  --primary-text-color: #333333;
+  --link-text-color: #0996F8;
+  --primary-border-color: #b7b7b7;
+  --standard-box-shadow: 0 1px 0 rgba(12,13,14,0.1),0 1px 3px rgba(12,13,14,0.1),0 4px 20px rgba(12,13,14,0.035),0 1px 1px rgba(12,13,14,0.025);
+  --dropdown-box-shadow: 0 50px 100px rgba(50, 50, 93, .1), 0 15px 35px rgba(50, 50, 93, .15), 0 5px 15px rgba(0, 0, 0, .1);
+  --accept-button-background-color: #0094FB;
+  --accept-button-hover-background-color: #00329a;
+  --reject-button-background-color: #fbfbfb;
+  --reject-button-hover-background-color: #e1e1e2;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+  /* mostly from https://github.com/johngruen/project-dfa/tree/master/src */
+body {
+  color: #333333;
+  background: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, 
+    "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", 
+    "Fira Sans", "Droid Sans", "Helvetica Neue", 
+    sans-serif;
+   }
+
+/*=====MINIMAL RESETS, ADJUSTMENTS, ETC =====*/
+h1, h2, h3, h4, h5, h6 {
+  color: #424f5a;
+}
+
+h1, h2, h3 {
+  /*padding-bottom:20px;
+  margin-bottom: 1em;*/ 
+}
+
+h4, h5, h6 {
+  margin-bottom: 1.66em; 
+}
+
+ul, ol, p {
+  line-height: 20px;
+  margin: .5em 0 0em 0; 
+}
+
+/* specific heights we like */
+
+h1 {
+  font-size:15px;
+}
+
+p {
+  /*font-size:15px;*/
+}
+
+/*div {border: solid 1px black}*/
+body {
+  /*position: relative;*/
+  width: 280px;
+  /*left: -10px;
+  top: -10px;*/
+  padding: 0 0;
+  margin: 0 0;
+  /*overflow: hidden;*/
+  
+}
+
+#topbar {
+  height: 20px; /*10%*/
+  margin-bottom: 0px;
+  display:none;
+}
+
+#topbar:hover > #top-left-links {
+  opacity: 1;
+}
+
+#top-left-links {
+  opacity: 0;
+  margin-top: 6px;
+  margin-left: 10px;
+  font-size: 11px;
+  float: left;
+  display: inline;
+  transition: opacity 0.5s cubic-bezier(0.05,0.27,0.27,1) 0s;
+  visibility: hidden;
+}
+
+a {
+  text-decoration: none;
+}
+
+#top-left-links.visible {
+  opacity: 1;
+}
+
+.top-left-link:hover {
+  text-decoration: underline;
+  color: rgba(10, 10, 10,  0.9);
+
+}
+
+.top-left-link.active { 
+  text-decoration: none !important;
+  color: black !important;
+  transition: color 0.5s;
+  cursor: default;
+  font-weight: bold;
+}
+
+.top-left-link {
+  color: rgba(34, 34, 34, 0.69);
+  text-decoration: none;
+}
+
+#interpunct {
+  color: #3FB8E8;
+  font-size: 8px;
+  padding-right: 3px;
+  padding-left: 3px;
+}
+
+#interpunct.invisible {
+  visibility: hidden;
+}
+
+#neg-feedback {
+  transition: color 0.5s;
+}
+
+#neg-feedback.active {
+  color: black;
+  text-decoration: none !important;
+}
+
+#neg-feedback.checked {
+  color: black;
+  font-weight: 600;
+}
+
+
+#info-page.invisible {
+  visibility: hidden;
+}
+
+#topsection {
+  display:flex;
+  padding-right: 10px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  min-height: 262px;
+}
+
+#recomcontainer {
+  transition: opacity 0.5s visibility 0s ease 0.5s;
+  opacity: 1;
+}
+
+#recomcontainer-top {
+
+}
+
+#recomcontainer-bottom {
+  display:flex;
+}
+
+#recommcontainer.invisible {
+  visibility: hidden;
+  opacity: 0;
+}
+
+#picture {
+  width: 100%;
+  text-align: center;
+  height:  145px;
+  
+}
+
+#image {
+  width: 162px;
+  height: 145px;
+}
+
+#textsection {
+  width: 75%;
+}
+ 
+#headersection {
+  width: 100%;
+  height: 41px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: solid 1px gray; 
+
+}
+
+#header {
+  font-size: 13px;
+  margin-left: auto;
+  margin-right: auto;
+  font-weight: bold;
+}
+
+
+#messagesection {
+  font-family:  -apple-system, BlinkMacSystemFont, 
+    "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", 
+    "Fira Sans", "Droid Sans", "Helvetica Neue", 
+    sans-serif;
+  height: 56px;
+  width:  100%;
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+}
+
+#message {
+  margin-right: auto;
+  margin-left: auto;
+  width: 240px;
+  text-align: center;
+  font-size: 21px;
+}
+
+
+#bottomsection {
+  /*position: relative;   */
+  background-color: rgba(0, 0, 0, 0.06);
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+  color: #1a1a1a;
+  display: flex;
+  flex-direction: row;
+  height: 41px;
+  margin-top: -1px;
+  padding: 0;
+}
+
+
+/* radio button style from http://code.stephenmorley.org/html-and-css/styling-checkboxes-and-radio-buttons/ */
+
+input[type=checkbox]:not(old),
+input[type=radio]:not(old) {
+  width     : 2em;
+  margin    : 0;
+  padding   : 0;
+  font-size : 1em;
+  opacity   : 0;
+}
+
+input[type=checkbox]:not(old) + label,
+input[type=radio]:not(old) + label {
+  display      : inline-block;
+  margin-left  : -2em;
+  line-height  : 1.5em;
+}
+
+input[type=checkbox]:not(old) + label > span,
+input[type=radio   ]:not(old) + label > span{
+  display          : inline-block;
+  width            : 0.875em;
+  height           : 0.875em;
+  margin           : 0 0.5em 0.25em 0.25em;
+  border           : 0.0625em solid rgb(192,192,192);
+  border-radius    : 0.25em;
+  background       : rgb(224,224,224);
+  background-image :         linear-gradient(rgb(240,240,240),rgb(224,224,224));
+  vertical-align   : bottom;
+}
+
+/*input[type=checkbox]:not(old):checked + label > span > span{
+  display          : block;
+  width            : 100%;
+  height           : 100%;
+  margin           : 0.125em;
+  border           : 0.0625em solid rgb(115,153,77);
+  border-radius    : 0.125em;
+  background       : linear-gradient(#8CD9D9, #66C1CC) repeat scroll 0% 0% #6CC;
+}*/
+
+input[type=checkbox]:not(old):checked + label > span:before{
+  content     : '\2713';
+  display     : block;
+  width       : 1em;
+  color       : #30A3C9;
+  font-size   : 0.875em;
+  line-height : 1em;
+  text-align  : center;
+  text-shadow : 0 0 0.0714em rgb(115,153,77);
+  font-weight : bold;
+}
+
+#choice5 {
+  margin-top: 10px;
+}
+
+
+#tp-logo {
+  height: 110px;
+  margin-top: 5px;
+  margin-left: 60px;
+}
+
+.button-style {
+  /*font-family: 'Helvetica Neue', Helvetica, sans-serif;*/
+  font-size: 13px;
+  line-height: 0px;
+  display: inline-block;
+  cursor: pointer;
+  /* font-weight: bold; */
+  /*text-shadow: 0px 1px rgba(0, 0, 0, 0.3);*/
+  color: #FFF;
+  background-color: #0996f8;
+  box-shadow: 0 1px 0 #0670cc inset;
+  border-style: solid;
+  border-width: 1px;
+  border-color: transparent;
+  flex: 1 1 auto;
+  height: 100%;
+  margin: -1px -0px;
+  padding: 12px;
+  text-align: center;
+  width: 50%;
+}
+
+#dontshow-container {
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+  width: 100%;
+  height: 61px;
+}
+
+#dontshow {
+  margin-right: auto;
+  margin-left: auto;
+  font-size: 13px;
+}
+
+a.external-link:hover {
+  text-decoration: underline;
+}
+
+/* Remove System Checkbox */
+input[type="checkbox"] {
+  display:none;
+}
+
+/* Fake checkbox made in CSS */
+.checkbox {
+  display:inline-block;
+  width:16px;
+  height:16px;
+  vertical-align: middle;
+  background-color: white;
+  border: 1px solid #aeaeae;
+  border-radius: 4px;
+  margin: 0 .5em 0 0;
+  cursor: pointer;
+}
+
+.checkbox:hover {
+  border-color: var(--accept-button-background-color);
+}
+
+.checkbox-label {
+  vertical-align: middle;
+  line-height: 15px; /* same as fake checkbox height */
+  font-size: 14px;
+}
+
+input[type="checkbox"] + span {
+  position: relative;
+}
+
+/* Adding the checkmark when the checkbox is checked */
+input[type="checkbox"]:checked + span:after {
+/*Add a block-level blank space*/
+  content: "";
+  display: block;
+/*Make a small rectangle*/
+  width: 3px;
+  height: 8px;
+/*Add a border on the bottom and right, creating an 'L' */
+  border: solid white;
+  border-width: 0 3px 3px 0;
+/*Position it on top of the custom checkbox*/
+  position:absolute;
+  top: -5%;
+  left: 25%;
+/*Rotate the L to make it look like a checkmark*/
+  transform: rotate(45deg);
+}
+
+.button-style:hover {
+  background-color: #0670cc;
+  box-shadow: 0 1px 0 #005bab inset;
+}
+
+.button-style:hover:active {
+  background-color: #005bab;
+  box-shadow: 0 1px 0 #004480 inset;
+}
+
+.button-style.invisible { 
+  display: none;
+}
+
+.button-style.disabled {
+  display:none;
+}
+
+.button-style.feedback {
+  width: auto;
+  visibility: visible;
+}
+
+#sec-button {
+  background-color: #ebebeb;
+  color: black;
+  border-color: transparent;
+  text-align: center;
+  box-shadow: 0 1px 0 #d4d4d4 inset;
+  width: 50%;
+}
+
+#sec-button:hover {
+  background-color: #d4d4d4;
+  box-shadow: 0 1px 0 #b1b1b1 inset;
+}
+
+#sec-button:hover:active {
+  background-color: #b1b1b1;
+  box-shadow: 0 1px 0 #858585 inset;
+}

@@ -1,0 +1,48 @@
+{
+  "name": "shield-vpn-recommendation-study",
+  "version": "0.0.1",
+  "description": "Firefox Shield study that recommends installing VPN software to those users who may benefit from it.",
+  "directories": {
+    "test": "test",
+    "lib": "src",
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "eslint": "eslint . --ext jsm,js,json",
+    "eslint-fix": "npm run eslint -- --fix",
+    "start": "web-ext run --no-reload",
+    "watch": "web-ext run",
+    "build": "web-ext build",
+    "bundle-utils": "copyStudyUtils src/privileged",
+    "prebuild": "npm run bundle-utils"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raymak/vpn-recommendation-shield-study.git"
+  },
+  "dependencies": {
+    "shield-studies-addon-utils": "github:mozilla/shield-studies-addon-utils#release/5.0.4"
+  },
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^11.2.0",
+    "eslint-plugin-import": "^2.5.0",
+    "eslint-plugin-json": "^1.2.0",
+    "eslint-plugin-mozilla": "^0.4.4",
+    "eslint-plugin-no-unsanitized": "^2.0.1",
+    "web-ext": "^2.7.0"
+  },
+  "keywords": [
+    "Shield",
+    "VPN",
+    "Firefox",
+    "Experiment"
+  ],
+  "author": "Kamyar Ardekani <kamyar@mozilla.com>",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/raymak/vpn-recommendation-shield-study/issues"
+  },
+  "homepage": "https://github.com/raymak/vpn-recommendation-shield-study#readme"
+}
