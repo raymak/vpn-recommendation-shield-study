@@ -2,21 +2,18 @@
 
 /* global ExtensionAPI, ExtensionCommon */
 
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
 XPCOMUtils.defineLazyServiceGetter(this, "resProto",
-                                   "@mozilla.org/network/protocol;1?name=resource",
-                                   "nsISubstitutingProtocolHandler");
+  "@mozilla.org/network/protocol;1?name=resource",
+  "nsISubstitutingProtocolHandler");
 
 this.vpnRecommender = class extends ExtensionAPI {
 
   getAPI(context) {
-    console.log('context', context);
-    Cu.import(context.extension.getURL('privileged/vpnRecommender/Doorhanger.jsm'), this);
+    console.log("context", context);
+    ChromeUtils.import(context.extension.getURL("privileged/vpnRecommender/Doorhanger.jsm"), this);
     this.extensionUrl = context.extension.getURL();
 
     const EventManager = ExtensionCommon.EventManager;
@@ -84,7 +81,7 @@ this.vpnRecommender = class extends ExtensionAPI {
   }
 
   registerCaptivePortalTrigger() {
-    let that = this;
+    const that = this;
 
     const cpObserver = {
       observe(subject, topic, data) {
