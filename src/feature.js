@@ -28,7 +28,7 @@ class VpnRecommendationStudy {
     const feature = this;
     const { variation, isFirstRun } = studyInfo;
 
-    console.log(`starting study feature: ${studyInfo}`);
+    console.log("starting study feature", studyInfo);
 
     browser.experiments.vpnRecommender.onSendTelemetry.addListener(this.sendTelemetry.bind(this));
     browser.experiments.vpnRecommender.onEndStudy.addListener((reason) => {
