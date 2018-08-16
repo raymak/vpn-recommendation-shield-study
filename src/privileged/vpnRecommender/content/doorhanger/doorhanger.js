@@ -6,7 +6,6 @@
 "use strict";
 
 let document;
-let recipe;
 let timeoutTimer;
 
 /* global addMessageListener  sendAsyncMessage content */
@@ -37,8 +36,8 @@ self.port.on("VpnRecommender::load", (data) => {
 });
 
 function load() {
-
-  document = content.document; // eslint-disable-line no-global-assign, no-native-reassign
+  // eslint-disable-next-line no-global-assign, no-native-reassign
+  document = content.document;
 
   const primButtonLabel = "Tell Me More";
   const secButtonLabel = "Not Now";

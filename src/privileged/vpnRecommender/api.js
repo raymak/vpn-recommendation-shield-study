@@ -2,12 +2,9 @@
 
 /* global ExtensionAPI, ExtensionCommon */
 
-
-
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 XPCOMUtils.defineLazyServiceGetter(this, "resProto",
   "@mozilla.org/network/protocol;1?name=resource",
   "nsISubstitutingProtocolHandler");

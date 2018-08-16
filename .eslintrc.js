@@ -30,12 +30,11 @@ module.exports = {
   plugins: ["json", "mozilla"],
   root: true,
   rules: {
-    "babel/new-cap": "off",
     "mozilla/no-aArgs": "warn",
     "mozilla/balanced-listeners": "off",
     "comma-dangle": ["error", "always-multiline"],
-    eqeqeq: "error",
-    indent: ["warn", 2, { SwitchCase: 1 }],
+    "eqeqeq": "error",
+    "indent": ["warn", 2, { SwitchCase: 1 }],
     "max-len": [
       "warn",
       {

@@ -4,10 +4,7 @@
 
 "use strict";
 
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-
 ChromeUtils.import("resource://gre/modules/Console.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
@@ -34,7 +31,7 @@ const MESSAGES = [
 
 this.EXPORTED_SYMBOLS = ["Doorhanger"];
 
-/* eslint-disable-next-line no-unused */
+/* eslint-disable-next-line no-unused-vars */
 class Doorhanger {
   constructor(messageListenerCallback, privilegedURL) {
     this.messageListenerCallback = messageListenerCallback;
