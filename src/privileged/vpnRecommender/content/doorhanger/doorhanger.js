@@ -57,7 +57,7 @@ function load() {
   document.getElementById("fake-checkbox").addEventListener("click", () => {
     toggleCheckbox();
   });
-  
+
   // setting the callback
   document.getElementById("sec-button").addEventListener("click", secButtonClick);
   document.getElementById("prim-button").addEventListener("click", primButtonClick);
@@ -95,7 +95,7 @@ function secButtonClick() {
 
 function primButtonClick() {
   // self.port.emit("VpnRecommender::action");
-  self.port.emit("VpnRecommender::dismiss")
+  self.port.emit("VpnRecommender::dismiss");
   clearTimeout();
 }
 

@@ -1,4 +1,4 @@
-  /* This Source Code Form is subject to the terms of the Mozilla Public
+/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
@@ -6,12 +6,12 @@
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
-Cu.import("resource://gre/modules/Console.jsm");
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://gre/modules/Timer.jsm");
+ChromeUtils.import("resource://gre/modules/Console.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "Preferences", "resource://gre/modules/Preferences.jsm");
+ChromeUtils.defineModuleGetter(this, "Preferences", "resource://gre/modules/Preferences.jsm");
 
 const DEBUG_MODE_PREF = "extensions.vpn_recommender_debug_mode";
 
@@ -34,15 +34,16 @@ const MESSAGES = [
 
 this.EXPORTED_SYMBOLS = ["Doorhanger"];
 
+/* eslint-disable-next-line no-unused */
 class Doorhanger {
   constructor(messageListenerCallback, privilegedURL) {
     this.messageListenerCallback = messageListenerCallback;
     this.privilegedURL = privilegedURL;
     this.contentURL = `${privilegedURL}/content`;
 
-    Cu.import(`${this.privilegedURL}/RecentWindow.jsm`, this);
-    console.log('recent window address', `${this.privilegedURL}/RecentWindow.jsm`);
-    
+    ChromeUtils.import(`${this.privilegedURL}/RecentWindow.jsm`, this);
+    console.log("recent window address", `${this.privilegedURL}/RecentWindow.jsm`);
+
     // Due to bug 1051238 frame scripts are cached forever, so we can't update them
     // as a restartless add-on. The Math.random() is the work around for this.
     this.frame_script_url = (`${this.contentURL}/doorhanger/doorhanger.js?${Math.random()}`);
@@ -79,12 +80,12 @@ class Doorhanger {
     panel.setAttribute("level", "parent");
 
     if (Services.appinfo.OS === "Darwin") {
-	    panel.style.height = "355px";
-	    panel.style.width = "282px";
-	  } else {
-		  panel.style.height = "355px";
-		  panel.style.width = "282px";
-	  }
+      panel.style.height = "355px";
+      panel.style.width = "282px";
+    } else {
+      panel.style.height = "355px";
+      panel.style.width = "282px";
+    }
 
     const embeddedBrowser = win.document.createElement("browser");
     embeddedBrowser.setAttribute("id", "vpn-recommender-doorhanger");
@@ -113,7 +114,7 @@ class Doorhanger {
   // temporary workaround
   determineAnchorElement(win) {
     const burgerButton = win.document.getElementById("PanelUI-menu-button");
-    let popAnchor = burgerButton;
+    const popAnchor = burgerButton;
 
     return popAnchor;
   }
