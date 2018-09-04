@@ -30,8 +30,6 @@ const self = {
   },
 };
 
-const sanitizeHtml = (m) => { return m; }; // disabling the sanitization. not needed. only text from the code is sent.
-
 self.port.on("VpnRecommender::load", (data) => {
   content.addEventListener("load", () => load());
 });
