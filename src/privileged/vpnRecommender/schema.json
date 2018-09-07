@@ -42,20 +42,27 @@
 				"description": "gets the internal state of the study feature",
 				"asnyc": true,
 				"parameters": []
+			},
+
+			{
+				"name": "fakeCaptivePortal",
+				"type": "function",
+				"description": "triggers the captive portal notification for testing purposes",
+				"async": true,
+				"parameters": []
+			},
+
+			{
+				"name": "cleanUp",
+				"type": "function",
+				"description": "cleans up the VPN recommender feature and its listeners",
+				"async": true,
+				"parameters": []
 			}
 
 		],
 
 		"events": [
-
-			{
-				"name": "onActiveTick",
-				"type": "function",
-				"description": "listen on activity ticks!",
-				"async": true,
-				"parameters": []
-			},
-
 			{
 				"name": "onSendTelemetry",
 				"type": "function",

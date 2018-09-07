@@ -1,11 +1,11 @@
 {
   "name": "VPN Recommendation Shield Study (bug 1478770)",
-  "description": "__MSG_extensionDescription__",
+  "description": "This study extension recommends a VPN software solution to those users who it deems likely to benefit from it.",
   "version": "2.0.0",
   "manifest_version": 2,
   "applications": {
     "gecko": {
-      "id": "vpn-recommendation-study@shield.mozilla.org",
+      "id": "vpn-recommendation-study-1@shield.mozilla.org",
       "strict_min_version": "61.0a1"
     }
   },
@@ -25,6 +25,14 @@
         "script": "./privileged/study/api.js",
         "paths": [["study"]]
       }
+    },
+    "testingOverrides": {
+      "schema": "./privileged/testingOverrides/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "script": "./privileged/testingOverrides/api.js",
+        "paths": [["testingOverrides"]]
+      }
     }
   },
   "permissions": ["management", "alarms", "storage"],
@@ -32,6 +40,6 @@
     "scripts": ["studySetup.js", "background.js", "feature.js"]
   },
   "icons": {
-    "48": "icons/shield-icon.svg"
+    "48": "firefox.png"
   }
 }

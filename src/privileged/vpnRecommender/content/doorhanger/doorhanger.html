@@ -14,30 +14,39 @@
 
   <body>
       <div id="recommcontainer">
+
         <div id="recomcontainer-top">
           <div id="headersection">
-            <div id="header">
-              Recommendation
+            <div id="left-info" class="info">
+            </div>
+            <div id="headercontainer">
+              <div id="header">
+                Recommendation
+              </div>
+            </div>
+            <div id="right-info" class="info">
+              <img src="../images/info.svg" />
             </div>
           </div>
           <div id="picture">
-            <img id="image" src="../images/image.png" />
           </div>
 
           <div id="messagesection">
-            <div id="message">Make Firefox Even More Secure with CyberVPN</div>
+            <div id="message-header">Make Firefox Even More Secure with ProtoVPN</div>
+            <div id="message"></div>
           </div>
         </div>
+
         <div id="recomcontainer-bottom">
           <div id="dontshow-container"> 
             <div id="dontshow">
-              <input id="real-checkbox" type="checkbox" aria-label="Don't ask me again">
-              <span class="checkbox" id="fake-checkbox"></span>
-              <span class="checkbox-label" id="checkbox-label">Don't ask me again</span>
+              <input id="dont-show-checkbox" type="checkbox" value="dont-show" />
+              <label for="dont-show" id="checkbox-label">Don't tell me about this again.</label>
+            </div>
           </div>
-       </div>
+        </div>
+
       </div>
-    </div>
 
     <div id="bottomsection">
       <button id="sec-button" class="button-style">Secondary</button>

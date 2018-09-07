@@ -1,29 +1,13 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "(feature)" }]*/
 
-/**  Example Feature module for a Shield Study.
- *
- *  UI:
- *  - during INSTALL only, show a notification bar with 2 buttons:
- *    - "Thanks".  Accepts the study (optional)
- *    - "I don't want this".  Uninstalls the study.
- *
- *  Firefox code:
- *  - Implements the 'introduction' to the 'button choice' study, via notification bar.
- *
- *  Demonstrates `studyUtils` API:
- *
- *  - `telemetry` to instrument "shown", "accept", and "leave-study" events.
- *  - `endStudy` to send a custom study ending.
- *
- **/
 class VpnRecommendationStudy {
   constructor() {}
-  /** A Demonstration feature.
-   *
-   *  - variation: study info about particular client study variation
-   *  - reason: string of background.js install/startup/shutdown reason
-   *
-   */
+
   configure(studyInfo) {
     const feature = this;
     const { variation, isFirstRun } = studyInfo;
@@ -42,19 +26,8 @@ class VpnRecommendationStudy {
     browser.study.sendTelemetry(stringStringMap);
   }
 
-  /**
-   * Called at end of study, and if the user disables the study or it gets uninstalled by other means.
-   */
-  async cleanup() {}
-
-  /**
-   * Example of a utility function
-   *
-   * @param variation
-   * @returns {string}
-   */
-  static iconPath(variation) {
-    return `icons/${variation.name}.svg`;
+  async cleanup() {
+    browser.experiments.vpnRecommender.cleanUp();
   }
 }
 

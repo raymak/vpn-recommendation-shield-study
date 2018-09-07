@@ -1,3 +1,8 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "getStudySetup" }]*/
 
 /**
@@ -69,14 +74,25 @@ const baseStudySetup = {
     },
   },
 
-  /* Button study branches and sample weights
-     - test kittens vs. puppers if we can only have one.
-       - downweight lizards.  Lizards is a 'poison' branch, meant to
-         help control for novelty effect
-  */
   weightedVariations: [
     {
       name: "captive-portal",
+      weight: 1,
+    },
+    {
+      name: "privacy-hostname",
+      weight: 1,
+    },
+    {
+      name: "control",
+      weight: 1,
+    },
+    {
+      name: "catch-all",
+      weight: 1,
+    },
+    {
+      name: "streaming-hostname",
       weight: 1,
     },
   ],
@@ -131,15 +147,16 @@ async function getStudySetup() {
 
   studySetup.allowEnroll = await cachingFirstRunShouldAllowEnroll();
 
-  // const testingPreferences = await browser.testingOverrides.listPreferences();
-  // console.log(
-  //   "The preferences that can be used to override testing flags: ",
-  //   testingPreferences,
-  // );
-  // studySetup.testing = {
-  //   variationName: await browser.testingOverrides.getVariationNameOverride(),
-  //   firstRunTimestamp: await browser.testingOverrides.getFirstRunTimestampOverride(),
-  //   expired: await browser.testingOverrides.getExpiredOverride(),
-  // };
+  const testingPreferences = await browser.testingOverrides.listPreferences();
+  console.log(
+    "The preferences that can be used to override testing flags: ",
+    testingPreferences,
+  );
+  studySetup.testing = {
+    variationName: await browser.testingOverrides.getVariationNameOverride(),
+    firstRunTimestamp: await browser.testingOverrides.getFirstRunTimestampOverride(),
+    expired: await browser.testingOverrides.getExpiredOverride(),
+  };
+
   return studySetup;
 }
