@@ -1,6 +1,7 @@
 /* eslint-env node */
 
 const PREF_BRANCH = "extensions.vpn-recommendation-study-1_shield_mozilla_org";
+// use `${PREF_BRANCH}.test.variationName` to set the variation for testing
 
 const defaultConfig = {
   // Global options:
