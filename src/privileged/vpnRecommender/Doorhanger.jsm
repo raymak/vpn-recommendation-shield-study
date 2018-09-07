@@ -13,8 +13,8 @@ Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/Timer.jsm");
 
-const DOORHANGER_MAC_SIZE = {width: 282, height: 402};
-const DOORHANGER_NON_MAC_SIZE = {width: 282, height: 402};
+const DOORHANGER_MAC_SIZE = {width: 282, height: 414};
+const DOORHANGER_NON_MAC_SIZE = {width: 290, height: 419};
 
 XPCOMUtils.defineLazyModuleGetter(this, "Preferences", "resource://gre/modules/Preferences.jsm");
 
