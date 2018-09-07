@@ -13,9 +13,7 @@
     "eslint-fix": "npm run eslint -- --fix",
     "start": "web-ext run --no-reload",
     "watch": "web-ext run",
-    "build": "web-ext build",
-    "bundle-utils": "copyStudyUtils src/privileged",
-    "prebuild": "npm run bundle-utils"
+    "build": "web-ext build"
   },
   "repository": {
     "type": "git",
@@ -26,11 +24,8 @@
   },
   "devDependencies": {
     "eslint": "^4.19.1",
-    "eslint-config-airbnb-base": "^11.2.0",
-    "eslint-plugin-import": "^2.5.0",
     "eslint-plugin-json": "^1.2.0",
     "eslint-plugin-mozilla": "^0.4.4",
-    "eslint-plugin-no-unsanitized": "^2.0.1",
     "web-ext": "^2.7.0"
   },
   "keywords": [
@@ -41,6 +36,7 @@
   ],
   "author": "Kamyar Ardekani <kamyar@mozilla.com>",
   "license": "MPL-2.0",
+  "private": true,
   "bugs": {
     "url": "https://github.com/raymak/vpn-recommendation-shield-study/issues"
   },
