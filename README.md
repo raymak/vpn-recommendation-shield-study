@@ -12,7 +12,7 @@ The extension zip file can then be found in the /dist folder.
 
 ### Run the extension
 
-This extension contains privileged code as WebExtension APIs and therefore can only be run in Firefox Nightly or Dev edition.
+This extension contains privileged code as WebExtension APIs and therefore can only be run in Firefox Nightly or Dev edition. You can either build the extension yourself or download the latest test version from https://drive.google.com/open?id=1kJh1dLitF8Ifhqm0LUM_7W80idyAlV1u .
 
 #### To run the extension in the browser:
 1. Unzip the extension
