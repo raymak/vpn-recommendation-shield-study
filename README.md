@@ -4,6 +4,8 @@ This extension is a [Firefox SHIELD](https://support.mozilla.org/en-US/kb/shield
 
 ### Build the extension
 
+Note: this step is optional, you can download a [recent version of the zip here (private URL)](https://drive.google.com/drive/folders/1sRQDC2brfsXGTcJO6ElkbeqakdKA1cln?usp=sharing).
+
 ```
 npm install
 npm run build
@@ -12,7 +14,7 @@ The extension zip file can then be found in the /dist folder.
 
 ### Run the extension
 
-This extension contains privileged code as WebExtension APIs and therefore can only be run in Firefox Nightly or Dev edition. You can either build the extension yourself or download the latest test version from https://drive.google.com/open?id=1kJh1dLitF8Ifhqm0LUM_7W80idyAlV1u .
+This extension contains privileged code as WebExtension APIs and therefore can only be run in Firefox Nightly or Dev edition.
 
 #### To run the extension in the browser:
 1. Unzip the extension
@@ -30,11 +32,11 @@ This extension contains privileged code as WebExtension APIs and therefore can o
 5. Set the value to the desired branch name (see below)
 
 ##### Branch names
-- captive-portal
-- privacy-hostname
+- captive-portal: in Browser Console type `browser.experiments.vpnRecommender.fakeCaptivePortal()`
+- privacy-hostname: triggered when you visit websites, examples include disconnect.me and strongvpn.com
 - control
 - catch-all
-- streaming-hostname
+- streaming-hostname: triggered when you visit websites, examples include hulu.com and netflix.com
 
 
 
