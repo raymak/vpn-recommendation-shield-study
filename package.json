@@ -7,13 +7,19 @@
     "lib": "src",
     "doc": "doc"
   },
+  "pref_branch": "extensions.vpn-recommendation-study-1_shield_mozilla_org.test.variationName",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "branch:captive-portal": "npm run start -- --pref=$npm_package_pref_branch=captive-portal",
+    "branch:catch-all": "npm run start -- --pref=$npm_package_pref_branch=catch-all",
+    "branch:control": "npm run start -- --pref=$npm_package_pref_branch=control",
+    "branch:privacy-hostname": "npm run start -- --pref=$npm_package_pref_branch=privacy-hostname",
+    "branch:streaming-hostname": "npm run start -- --pref=$npm_package_pref_branch=streaming-hostname",
+    "build": "web-ext build",
     "eslint": "eslint . --ext jsm,js,json",
     "eslint-fix": "npm run eslint -- --fix",
     "start": "web-ext run --no-reload",
-    "watch": "web-ext run",
-    "build": "web-ext build"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "web-ext run"
   },
   "repository": {
     "type": "git",
@@ -26,6 +32,7 @@
     "eslint": "^4.19.1",
     "eslint-plugin-json": "^1.2.0",
     "eslint-plugin-mozilla": "^0.4.4",
+    "eslint-plugin-no-unsanitized": "^3.0.2",
     "web-ext": "^2.7.0"
   },
   "keywords": [
