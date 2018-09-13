@@ -6,11 +6,9 @@
 "use strict";
 
 let document;
-let timeoutTimer;
 
 /* global addMessageListener  sendAsyncMessage content */
 
-const TIMEOUT_SECS = 60;
 const PRIMARY_BUTTON_LABEL = "Tell Me More";
 const SECONDARY_BUTTON_LABEL = "Dismiss";
 
@@ -59,8 +57,6 @@ function load(data) {
   document.getElementById("prim-button").addEventListener("click", primButtonClick);
 
   document.getElementById("right-info").addEventListener("click", infoClick);
-
-  timeoutTimer = content.setTimeout(timeout, TIMEOUT_SECS * 1000);
 }
 
 function infoClick(e) {
@@ -70,21 +66,10 @@ function infoClick(e) {
 function secButtonClick() {
   const checkboxEle = document.getElementById("dont-show-checkbox");
   sendAsyncMessage("VpnRecommender::dismiss", {dontShowChecked: checkboxEle.checked});
-  clearTimeout();
 }
 
 function primButtonClick() {
   self.port.emit("VpnRecommender::action");
-  clearTimeout();
-}
-
-function timeout() {
-  const checkboxEle = document.getElementById("dont-show-checkbox");
-  sendAsyncMessage("VpnRecommender::timeout", {dontShowChecked: checkboxEle.checked});
-}
-
-function clearTimeout() {
-  content.clearTimeout(timeoutTimer);
 }
 
 self.port.emit("VpnRecommender::panel-ready");
