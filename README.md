@@ -4,6 +4,8 @@ This extension is a [Firefox SHIELD](https://support.mozilla.org/en-US/kb/shield
 
 ### Build the extension
 
+Note: this step is optional, you can download a [recent version of the zip here (private URL)](https://drive.google.com/drive/folders/1sRQDC2brfsXGTcJO6ElkbeqakdKA1cln?usp=sharing).
+
 ```
 npm install
 npm run build
@@ -30,13 +32,22 @@ This extension contains privileged code as WebExtension APIs and therefore can o
 5. Set the value to the desired branch name (see below)
 
 ##### Branch names
-- captive-portal
-- privacy-hostname
+- captive-portal: triggered when you connect to a public (unencrypted) wifi network with a captive portal page
+- privacy-hostname: triggered when you visit websites, examples include disconnect.me and strongvpn.com
 - control
-- catch-all
-- streaming-hostname
+- catch-all: triggered after you use Firefox for a while
+- streaming-hostname: triggered when you visit websites, examples include hulu.com and netflix.com
 
+### Faking the captive portal trigger
 
+In case you would like to test the __captive-portal__ branch without actually finding a public wifi network, follow the instructions below _after installing the extension_:
+
+1. Go to about:debugging
+2. Check the "Enable add-on debugging" checkbox
+3. Click on the "Debug" button right below the extension name
+4. Go to the "Console" section
+5. Enter `browser.experiments.vpnRecommender.fakeCaptivePortal()`
+6. You should now see the recommendation if you are in the __captive-portal__ branch
 
 
 
