@@ -18,7 +18,10 @@ Cu.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
 const PREF_BRANCH = "extensions.vpn-recommendation-study-1_shield_mozilla_org";
 const DONT_SHOW_PREF = PREF_BRANCH + ".dontShowChecked";
 const NOTIFICATION_COUNT_PREF = PREF_BRANCH + ".notificationCount";
+const LAST_NOTIFICATION_PREF = PREF_BRANCH + ".lastNotification";
 const DEBUG_MODE_PREF = PREF_BRANCH + ".debug_mode";
+
+const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 
 const CATCH_ALL_TRIGGER_TIMER_MINUTES = 10;
 const MAX_NOTIFICATION_COUNT = 3;
@@ -327,8 +330,13 @@ this.vpnRecommender = class extends ExtensionAPI {
   }
 
   tryShowNotification() {
-    if (this.isNotificationShown) return;
+    if (Date.now() - Number(Preferences.get(LAST_NOTIFICATION_PREF)) < TWENTY_FOUR_HOURS) {
+      console.log("less than 24 hours has passed since the last notification was shown");
+      return;
+    }
+
     if (Preferences.get(DONT_SHOW_PREF)) return;
+
     const notificationCount = Preferences.get(NOTIFICATION_COUNT_PREF) || 0;
     if (notificationCount === MAX_NOTIFICATION_COUNT) return;
 
@@ -337,8 +345,8 @@ this.vpnRecommender = class extends ExtensionAPI {
 
     if (!success) return;
 
-    this.isNotificationShown = true;
     Preferences.set(NOTIFICATION_COUNT_PREF, notificationCount + 1); // increment notification count
+    Preferences.set(LAST_NOTIFICATION_PREF, String(Date.now()));
   }
 
   addCleanUpFunction(func) {
