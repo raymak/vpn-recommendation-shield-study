@@ -121,7 +121,7 @@ class Doorhanger {
 
   determineAnchorElement(win) {
     const burgerButton = win.document.getElementById("PanelUI-menu-button");
-    const popAnchor = burgerButton;
+    const popAnchor = win.document.getAnonymousElementByAttribute(burgerButton, "class", "toolbarbutton-icon");
 
     return popAnchor;
   }
