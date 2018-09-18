@@ -177,7 +177,18 @@ this.vpnRecommender = class extends ExtensionAPI {
 
         try {
           const hostname = uri.host;
-          if (hostnameList.includes(hostname)) that.tryShowNotification();
+
+          const test_function = (ref_hostname) => {
+            const escaped_ref_hostname = ref_hostname.replace(".", "\\.").replace("-", "\\-");
+            const rx = new RegExp("^(.+\\.)*(" + escaped_ref_hostname + ")$");
+
+            return rx.test(hostname);
+          };
+
+          if (hostnameList.some(test_function)) {
+            that.tryShowNotification();
+          }
+
         } catch (e) {
 
         }
