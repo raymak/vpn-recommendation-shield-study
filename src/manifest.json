@@ -40,6 +40,7 @@
     "scripts": ["studySetup.js", "background.js", "feature.js"]
   },
   "icons": {
-    "48": "firefox.png"
+    "48": "icon.svg",
+    "96": "icon.svg"
   }
 }

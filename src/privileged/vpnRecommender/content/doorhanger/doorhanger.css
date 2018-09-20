@@ -52,7 +52,7 @@ ul, ol, p {
   opacity: 1;
 }
 
-#recommcontainer.invisible {
+#recomcontainer.invisible {
   visibility: hidden;
   opacity: 0;
 }

@@ -13,8 +13,8 @@ Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/Timer.jsm");
 
-const DOORHANGER_MAC_SIZE = {width: 282, height: 414};
-const DOORHANGER_NON_MAC_SIZE = {width: 290, height: 419};
+const DOORHANGER_MAC_SIZE = {width: 280, height: 403};
+const DOORHANGER_NON_MAC_SIZE = {width: 282, height: 406};
 
 XPCOMUtils.defineLazyModuleGetter(this, "Preferences", "resource://gre/modules/Preferences.jsm");
 
@@ -92,9 +92,6 @@ class Doorhanger {
 
     const panelSize = Services.appinfo.OS === "Darwin" ? DOORHANGER_MAC_SIZE : DOORHANGER_NON_MAC_SIZE;
 
-    panel.style.height = `${panelSize.height}px`;
-    panel.style.width = `${panelSize.width}px`;
-
     const embeddedBrowser = win.document.createElement("browser");
     embeddedBrowser.setAttribute("id", "vpn-recommender-doorhanger");
     embeddedBrowser.setAttribute("src", `${this.contentURL}/doorhanger/doorhanger.html`);
@@ -105,7 +102,11 @@ class Doorhanger {
     panel.appendChild(embeddedBrowser);
     win.document.getElementById("mainPopupSet").appendChild(panel);
 
-    win.document.getAnonymousElementByAttribute(panel, "class", "panel-arrowcontent").setAttribute("style", "padding: 0px;");
+    const panelContent = win.document.getAnonymousElementByAttribute(panel, "class", "panel-arrowcontent");
+
+    panelContent.style.padding = "0px";
+    panelContent.style.height = `${panelSize.height}px`;
+    panelContent.style.width = `${panelSize.width}px`;
 
     // seems that messageManager only available when browser is attached
     embeddedBrowser.messageManager.loadFrameScript(this.frame_script_url, false);

@@ -9,17 +9,29 @@
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://gre/modules/Preferences.jsm");
-Cu.import("resource://gre/modules/Timer.jsm");
-Cu.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+
+Cu.importGlobalProperties(["XMLHttpRequest"]);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  Preferences: "resource://gre/modules/Preferences.jsm",
+  setTimeout: "resource://gre/modules/Timer.jsm",
+  setInterval: "resource://gre/modules/Timer.jsm",
+  clearInterval: "resource://gre/modules/Timer.jsm",
+  PrivateBrowsingUtils: "resource://gre/modules/PrivateBrowsingUtils.jsm",
+});
 
 const PREF_BRANCH = "extensions.vpn-recommendation-study-1_shield_mozilla_org";
 const DONT_SHOW_PREF = PREF_BRANCH + ".dontShowChecked";
 const NOTIFICATION_COUNT_PREF = PREF_BRANCH + ".notificationCount";
 const LAST_NOTIFICATION_PREF = PREF_BRANCH + ".lastNotification";
 const DEBUG_MODE_PREF = PREF_BRANCH + ".debug_mode";
+
+const CP_SUCCESS_XHR_TIMEOUT = 3000;
+const CAPTIVE_PORTAL_URL = "http://detectportal.firefox.com/success.txt";
+const CP_SUCCESS_CHECK_INTERVAL = 10000;
+const CP_SUCCESS_MAX_CHECK_COUNT = 3;
 
 const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 
@@ -37,15 +49,15 @@ const DOORHANGER_MESSAGES = {
     text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connect, no matter where you are.",
   },
   "privacy-hostname": {
-    header: "Looking for a Virtual Private Network service?",
+    header: "Make Firefox even more secure with ProtonVPN.",
     text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connect, no matter where you are.",
   },
   "streaming-hostname": {
-    header: "Make Firefox more secure with ProtonVPN.",
+    header: "Make Firefox even more secure with ProtonVPN.",
     text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connect, no matter where you are.",
   },
   "catch-all": {
-    header: "Make Firefox more secure with ProtonVPN.",
+    header: "Make Firefox even more secure with ProtonVPN.",
     text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connect, no matter where you are.",
   },
 };
@@ -119,6 +131,62 @@ this.vpnRecommender = class extends ExtensionAPI {
     }
   }
 
+  async waitForConnection() {
+    const checkConnection = async () => {
+      const p = new Promise((resolve, error) => {
+        const xhr = new XMLHttpRequest();
+
+        xhr.timeout = CP_SUCCESS_XHR_TIMEOUT;
+
+        xhr.addEventListener("load", () => {
+          console.log("CP connection check load");
+
+          if (xhr.response === "success\n") {
+            console.log("CP connection check success");
+            resolve("success");
+          }
+          resolve("failure");
+        });
+
+        xhr.addEventListener("error", () => {
+          console.log("CP connection check error");
+          resolve("failure");
+        });
+
+        xhr.addEventListener("timeout", () => {
+          console.log("CP connection check timeout");
+          resolve("failue");
+        });
+
+        xhr.open("GET", CAPTIVE_PORTAL_URL);
+        xhr.send();
+      });
+
+      return p;
+    };
+
+    let tiCount = 0;
+
+    const promise = new Promise((resolve, error) => {
+      const ti = setInterval(async () => {
+        const res = await checkConnection();
+        if (res === "success") {
+          resolve("success");
+          clearInterval(ti);
+        }
+        tiCount += 1;
+
+        if (tiCount === CP_SUCCESS_MAX_CHECK_COUNT) {
+          clearInterval(ti);
+          resolve("failure");
+        }
+
+      }, CP_SUCCESS_CHECK_INTERVAL);
+    });
+
+    return promise;
+  }
+
   registerListeners() {
     log("registering listeners");
 
@@ -151,7 +219,9 @@ this.vpnRecommender = class extends ExtensionAPI {
       observe(subject, topic, data) {
         if (topic !== "captive-portal-login") return;
         log("captive-portal-login");
-        that.tryShowNotification();
+        that.waitForConnection().then((result) => {
+          if (result === "success") that.tryShowNotification();
+        });
       },
     };
 
