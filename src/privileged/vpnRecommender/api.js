@@ -12,7 +12,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
-Cu.importGlobalProperties(["XMLHttpRequest"]);
+Cu.importGlobalProperties(["XMLHttpRequest", "URL", "URLSearchParams"]);
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   Preferences: "resource://gre/modules/Preferences.jsm",
@@ -38,9 +38,16 @@ const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 const CATCH_ALL_TRIGGER_TIMER_MINUTES = 10;
 const MAX_NOTIFICATION_COUNT = 3;
 
+const VPN_LANDING_PAGE_URL = "https://premium.firefox.com/vpn/";
+const VPN_LANDING_PAGE_DEFAULT_PARAMS = {
+  "utm_source": "firefox-browser",
+  "utm_medium": "firefox-browser",
+  "utm_campaign": "shield_vpn",
+};
+
 const log = function(...args) {
   if (!Preferences.get(DEBUG_MODE_PREF)) return;
-  console.log(...args);
+  log(...args);
 };
 
 const DOORHANGER_MESSAGES = {
@@ -69,6 +76,7 @@ this.vpnRecommender = class extends ExtensionAPI {
 
     Cu.import(context.extension.getURL("privileged/vpnRecommender/Doorhanger.jsm"), this);
     Cu.import(context.extension.getURL("privileged/vpnRecommender/VpnRelatedHostnames.jsm"), this);
+    Cu.import(context.extension.getURL("privileged/vpnRecommender/RecentWindow.jsm"), this);
 
     this.cleanUpFunctions = [];
 
@@ -139,22 +147,22 @@ this.vpnRecommender = class extends ExtensionAPI {
         xhr.timeout = CP_SUCCESS_XHR_TIMEOUT;
 
         xhr.addEventListener("load", () => {
-          console.log("CP connection check load");
+          log("CP connection check load");
 
           if (xhr.response === "success\n") {
-            console.log("CP connection check success");
+            log("CP connection check success");
             resolve("success");
           }
           resolve("failure");
         });
 
         xhr.addEventListener("error", () => {
-          console.log("CP connection check error");
+          log("CP connection check error");
           resolve("failure");
         });
 
         xhr.addEventListener("timeout", () => {
-          console.log("CP connection check timeout");
+          log("CP connection check timeout");
           resolve("failue");
         });
 
@@ -367,6 +375,32 @@ this.vpnRecommender = class extends ExtensionAPI {
     });
   }
 
+  openVpnPage() {
+    const variation = this.variation;
+    const urlArgs = Object.assign({}, VPN_LANDING_PAGE_DEFAULT_PARAMS,
+      {"utm_content": variation});
+
+    const mergeQueryArgs = (url, ...args) => {
+      /* currently left to right*/
+      const U = new URL(url);
+      let q = U.search || "?";
+      q = new URLSearchParams(q);
+
+      const merged = Object.assign({}, ...args);
+
+      // get user info.
+      Object.keys(merged).forEach((k) => {
+        q.set(k, merged[k]);
+      });
+
+      U.search = q.toString();
+      return U.toString();
+    };
+
+    const win = this.RecentWindow.getMostRecentBrowserWindow();
+    win.gBrowser.addWebTab(mergeQueryArgs(VPN_LANDING_PAGE_URL, urlArgs));
+  }
+
   notificationActionCallback(message) {
     log(`notification action: name => ${message.name}, data=> ${JSON.stringify(message.data)}`);
 
@@ -378,6 +412,7 @@ this.vpnRecommender = class extends ExtensionAPI {
 
     if (message.name === "VpnRecommender::action") {
       eventName = "action";
+      this.openVpnPage();
     }
 
     if (message.name === "VpnRecommender::dismiss") {
@@ -401,7 +436,7 @@ this.vpnRecommender = class extends ExtensionAPI {
 
   tryShowNotification() {
     if (Date.now() - Number(Preferences.get(LAST_NOTIFICATION_PREF)) < TWENTY_FOUR_HOURS) {
-      console.log("less than 24 hours has passed since the last notification was shown");
+      log("less than 24 hours has passed since the last notification was shown");
       return;
     }
 
