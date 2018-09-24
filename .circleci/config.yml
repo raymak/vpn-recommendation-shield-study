@@ -80,9 +80,9 @@ jobs:
       #    name: Functional tests with Firefox Developer Edition
       #    command: FIREFOX_BINARY=/home/circleci/checkout/firefox-devedition/firefox-bin npm run test:func && mkdir test/results/logs-devedition && mv test/results/logs/* test/results/logs-devedition/
 
-      - run:
-          name: Functional tests with Firefox Nightly
-          command: FIREFOX_BINARY=/home/circleci/checkout/firefox-nightly/firefox-bin npm run test:func && mkdir test/results/logs-nightly && mv test/results/logs/* test/results/logs-nightly/
+      #- run:
+      #    name: Functional tests with Firefox Nightly
+      #    command: FIREFOX_BINARY=/home/circleci/checkout/firefox-nightly/firefox-bin npm run test:func && mkdir test/results/logs-nightly && mv test/results/logs/* test/results/logs-nightly/
 
       - run:
           name: Test add-on
