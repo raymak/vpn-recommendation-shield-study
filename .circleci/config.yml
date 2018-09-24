@@ -64,9 +64,9 @@ jobs:
           path: "dist"
           destination: "dist"
 
-      - run:
-          name: Unit tests
-          command: npm run test:unit
+      # - run:
+      #    name: Unit tests
+      #    command: npm run test:unit
 
       # Needs signed add-on to work on branded releases
       #- run:
@@ -76,13 +76,17 @@ jobs:
       #    name: Functional tests with Firefox Beta
       #    command: FIREFOX_BINARY=/home/circleci/checkout/firefox-beta/firefox-bin npm run test:func && mkdir test/results/logs-beta && mv test/results/logs/* test/results/logs-beta/
 
-      - run:
-          name: Functional tests with Firefox Developer Edition
-          command: FIREFOX_BINARY=/home/circleci/checkout/firefox-devedition/firefox-bin npm run test:func && mkdir test/results/logs-devedition && mv test/results/logs/* test/results/logs-devedition/
+      # - run:
+      #    name: Functional tests with Firefox Developer Edition
+      #    command: FIREFOX_BINARY=/home/circleci/checkout/firefox-devedition/firefox-bin npm run test:func && mkdir test/results/logs-devedition && mv test/results/logs/* test/results/logs-devedition/
 
       - run:
           name: Functional tests with Firefox Nightly
           command: FIREFOX_BINARY=/home/circleci/checkout/firefox-nightly/firefox-bin npm run test:func && mkdir test/results/logs-nightly && mv test/results/logs/* test/results/logs-nightly/
+
+      - run:
+          name: Test add-on
+          command: npm run test
 
       - store_artifacts:
           path: "test/results"
