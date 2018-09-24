@@ -9,6 +9,7 @@
   },
   "scripts": {
     "test": "npm run eslint",
+    "lint": "npm run eslint",
     "eslint": "eslint . --ext jsm,js,json",
     "eslint-fix": "npm run eslint -- --fix",
     "start": "web-ext run --no-reload",
