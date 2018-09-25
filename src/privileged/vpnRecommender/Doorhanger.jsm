@@ -3,20 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "Doorhanger" }]*/
+/* global Preferences */
 
 "use strict";
 
-const { utils: Cu } = Components;
-
-Cu.import("resource://gre/modules/Console.jsm");
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://gre/modules/Timer.jsm");
+ChromeUtils.import("resource://gre/modules/Console.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 const DOORHANGER_MAC_SIZE = {width: 280, height: 403};
 const DOORHANGER_NON_MAC_SIZE = {width: 282, height: 406};
 
-XPCOMUtils.defineLazyModuleGetter(this, "Preferences", "resource://gre/modules/Preferences.jsm");
+ChromeUtils.defineLazyModuleGetter(this, "Preferences", "resource://gre/modules/Preferences.jsm");
 
 const PREF_BRANCH = "extensions.vpn-recommendation-study-1_shield_mozilla_org";
 const DEBUG_MODE_PREF = PREF_BRANCH + "debug_mode";
@@ -46,7 +44,7 @@ class Doorhanger {
     this.privilegedURL = privilegedURL;
     this.contentURL = `${privilegedURL}/content`;
 
-    Cu.import(`${this.privilegedURL}/RecentWindow.jsm`, this);
+    ChromeUtils.import(`${this.privilegedURL}/RecentWindow.jsm`, this);
     log("recent window address", `${this.privilegedURL}/RecentWindow.jsm`);
 
     // Due to bug 1051238 frame scripts are cached forever, so we can't update them

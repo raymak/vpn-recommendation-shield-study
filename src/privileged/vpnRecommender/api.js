@@ -5,12 +5,10 @@
 
 "use strict";
 
-/* global ExtensionAPI, ExtensionCommon */
+/* global ExtensionAPI, ExtensionCommon, Preferences, PrivateBrowsingUtils */
 
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 Cu.importGlobalProperties(["XMLHttpRequest", "URL", "URLSearchParams"]);
 
@@ -74,9 +72,9 @@ this.vpnRecommender = class extends ExtensionAPI {
   getAPI(context) {
     const that = this;
 
-    Cu.import(context.extension.getURL("privileged/vpnRecommender/Doorhanger.jsm"), this);
-    Cu.import(context.extension.getURL("privileged/vpnRecommender/VpnRelatedHostnames.jsm"), this);
-    Cu.import(context.extension.getURL("privileged/vpnRecommender/RecentWindow.jsm"), this);
+    ChromeUtils.import(context.extension.getURL("privileged/vpnRecommender/Doorhanger.jsm"), this);
+    ChromeUtils.import(context.extension.getURL("privileged/vpnRecommender/VpnRelatedHostnames.jsm"), this);
+    ChromeUtils.import(context.extension.getURL("privileged/vpnRecommender/RecentWindow.jsm"), this);
 
     this.cleanUpFunctions = [];
 
