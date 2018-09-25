@@ -47,7 +47,7 @@ const VPN_LANDING_PAGE_DEFAULT_PARAMS = {
 
 const log = function(...args) {
   if (!Preferences.get(DEBUG_MODE_PREF)) return;
-  log(...args);
+  console.log(...args);
 };
 
 const DOORHANGER_MESSAGES = {
