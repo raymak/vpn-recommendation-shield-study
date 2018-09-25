@@ -9,14 +9,18 @@
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-const DOORHANGER_MAC_SIZE = {width: 280, height: 403};
-const DOORHANGER_NON_MAC_SIZE = {width: 282, height: 406};
-
 ChromeUtils.defineModuleGetter(this, "Preferences", "resource://gre/modules/Preferences.jsm");
 ChromeUtils.defineModuleGetter(this, "setTimeout", "resource://gre/modules/Timer.jsm");
 
+const DOORHANGER_MAC_SIZE = {width: 280, height: 403};
+const DOORHANGER_NON_MAC_SIZE = {width: 282, height: 406};
+
 const PREF_BRANCH = "extensions.vpn-recommendation-study-1_shield_mozilla_org";
 const DEBUG_MODE_PREF = PREF_BRANCH + "debug_mode";
+
+const SELECTED_LWT_THEME_ID = "lightweightThemes.selectedThemeID";
+const DEFAULT_THEME_ID = "default-theme@mozilla.org";
+const COMPACT_DARK_ID = "firefox-compact-dark@mozilla.org";
 
 const log = function(...args) {
   if (!Preferences.get(DEBUG_MODE_PREF)) return;
@@ -86,6 +90,7 @@ class Doorhanger {
     panel.setAttribute("noautohide", true);
     panel.setAttribute("flip", "slide");
     panel.setAttribute("level", "parent");
+    panel.setAttribute("position", "bottomcenter topright");
 
     const panelSize = Services.appinfo.OS === "Darwin" ? DOORHANGER_MAC_SIZE : DOORHANGER_NON_MAC_SIZE;
 
@@ -104,6 +109,7 @@ class Doorhanger {
     panelContent.style.padding = "0px";
     panelContent.style.height = `${panelSize.height}px`;
     panelContent.style.width = `${panelSize.width}px`;
+    panelContent.style.margin = "1px 0px 0px 0px";
 
     // seems that messageManager only available when browser is attached
     embeddedBrowser.messageManager.loadFrameScript(this.frame_script_url, false);
@@ -114,7 +120,19 @@ class Doorhanger {
 
     panel.openPopup(popAnchor, "", 0, 0, false, false);
 
-    embeddedBrowser.messageManager.sendAsyncMessage("VpnRecommender::load", data);
+    embeddedBrowser.messageManager.sendAsyncMessage("VpnRecommender::load", { ...data, isDarkMode: this.isDarkMode(win) });
+  }
+
+  isDarkMode(win) {
+    const isSystemDark = win.matchMedia("(-moz-system-dark-theme)").matches;
+    const lwtThemeId = Preferences.get(SELECTED_LWT_THEME_ID);
+
+    if (!lwtThemeId) return false;
+
+    if (lwtThemeId === COMPACT_DARK_ID) return true;
+    if (lwtThemeId === DEFAULT_THEME_ID && isSystemDark) return true;
+
+    return false;
   }
 
   determineAnchorElement(win) {
