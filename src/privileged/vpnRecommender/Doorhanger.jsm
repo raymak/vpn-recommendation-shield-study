@@ -86,6 +86,7 @@ class Doorhanger {
     panel.setAttribute("noautohide", true);
     panel.setAttribute("flip", "slide");
     panel.setAttribute("level", "parent");
+    panel.setAttribute("position", "bottomcenter topright");
 
     const panelSize = Services.appinfo.OS === "Darwin" ? DOORHANGER_MAC_SIZE : DOORHANGER_NON_MAC_SIZE;
 
