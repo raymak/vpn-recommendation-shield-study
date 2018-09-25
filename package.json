@@ -1,6 +1,6 @@
 {
   "name": "shield-vpn-recommendation-study",
-  "version": "0.0.1",
+  "version": "0.1",
   "description": "Firefox Shield study that recommends installing VPN software to those users who may benefit from it.",
   "directories": {
     "test": "test",
