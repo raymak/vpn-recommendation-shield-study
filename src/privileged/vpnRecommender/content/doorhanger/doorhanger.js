@@ -36,6 +36,10 @@ self.port.on("VpnRecommender::load", (data) => {
 function load(data) {
   document = content.document; // eslint-disable-line no-global-assign, no-native-reassign
 
+  if (data.isDarkMode) {
+    document.body.classList.add("dark");
+  }
+
   const primButtonLabel = PRIMARY_BUTTON_LABEL;
   const secButtonLabel = SECONDARY_BUTTON_LABEL;
 

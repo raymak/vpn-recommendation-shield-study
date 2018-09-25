@@ -396,7 +396,8 @@ this.vpnRecommender = class extends ExtensionAPI {
     };
 
     const win = this.RecentWindow.getMostRecentBrowserWindow();
-    win.gBrowser.addWebTab(mergeQueryArgs(VPN_LANDING_PAGE_URL, urlArgs));
+    const tab = win.gBrowser.addWebTab(mergeQueryArgs(VPN_LANDING_PAGE_URL, urlArgs));
+    win.gBrowser.selectedTab = tab;
   }
 
   notificationActionCallback(message) {
