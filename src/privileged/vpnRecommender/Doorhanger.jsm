@@ -7,14 +7,13 @@
 
 "use strict";
 
-ChromeUtils.import("resource://gre/modules/Console.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 const DOORHANGER_MAC_SIZE = {width: 280, height: 403};
 const DOORHANGER_NON_MAC_SIZE = {width: 282, height: 406};
 
-ChromeUtils.defineLazyModuleGetter(this, "Preferences", "resource://gre/modules/Preferences.jsm");
+ChromeUtils.defineModuleGetter(this, "Preferences", "resource://gre/modules/Preferences.jsm");
+ChromeUtils.defineModuleGetter(this, "setTimeout", "resource://gre/modules/Timer.jsm");
 
 const PREF_BRANCH = "extensions.vpn-recommendation-study-1_shield_mozilla_org";
 const DEBUG_MODE_PREF = PREF_BRANCH + "debug_mode";
