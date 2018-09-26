@@ -87,6 +87,17 @@ async function checkPrefs(driver, prefs) {
   }
 }
 
+async function isNotificationVisible(driver, value = true) {
+  const PANEL_ID = "vpn-recommender-doorhanger-panel";
+
+  driver.setContext(Context.CHROME);
+  const elem = await driver.executeScript(`
+    return window.document.getElementById("${PANEL_ID}");
+  `);
+
+  assert.equal(Boolean(elem), value, "notification must be visible");
+}
+
 module.exports = {
   FIREFOX_PREFERENCES,
   PREF_BRANCH,
@@ -100,4 +111,5 @@ module.exports = {
   telemetry,
   executeJs,
   ui,
+  isNotificationVisible,
 };
