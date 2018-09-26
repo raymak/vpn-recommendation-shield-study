@@ -96,4 +96,4 @@ const STREAMING_HOSTNAMES = [
   "moviesanywhere.com",
 ];
 
-const VpnRelatedHostnames = { PRIVACY_PROVIDER_HOSTNAMES, STREAMING_HOSTNAMES };
+var VpnRelatedHostnames = { PRIVACY_PROVIDER_HOSTNAMES, STREAMING_HOSTNAMES }; // eslint-disable-line no-var

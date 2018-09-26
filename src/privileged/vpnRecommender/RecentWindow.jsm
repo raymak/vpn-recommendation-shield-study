@@ -12,7 +12,7 @@ ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
 
-const RecentWindow = {
+var RecentWindow = { // eslint-disable-line no-var
   /*
    * Get the most recent browser window.
    *
