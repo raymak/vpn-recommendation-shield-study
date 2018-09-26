@@ -43,6 +43,8 @@ const FIREFOX_PREFERENCES = {
    */
 };
 
+const PANEL_ID = "vpn-recommender-doorhanger-panel";
+
 const PREF_BRANCH = "extensions.vpn-recommendation-study-1_shield_mozilla_org";
 const WIDGET_ID = "shield.vpn-recommendation-study-1_shield_mozilla_org";
 
@@ -88,14 +90,22 @@ async function checkPrefs(driver, prefs) {
 }
 
 async function isNotificationVisible(driver, value = true) {
-  const PANEL_ID = "vpn-recommender-doorhanger-panel";
-
   driver.setContext(Context.CHROME);
   const elem = await driver.executeScript(`
     return window.document.getElementById("${PANEL_ID}");
   `);
 
   assert.equal(Boolean(elem), value, "notification must be visible");
+}
+
+async function killNotification(driver) {
+  driver.setContext(Context.CHROME);
+  await driver.executeScript(`
+    const elem = window.document.getElementById("${PANEL_ID}");
+    if (elem) {
+      elem.remove();
+    }
+  `);
 }
 
 module.exports = {
@@ -112,4 +122,5 @@ module.exports = {
   executeJs,
   ui,
   isNotificationVisible,
+  killNotification,
 };

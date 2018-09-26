@@ -12,7 +12,7 @@ const Context = firefox.Context;
 const SETUP_DELAY = process.env.DELAY ? parseInt(process.env.DELAY) : 500;
 
 describe("triggers", function() {
-  this.timeout(32000);
+  this.timeout(50000);
 
   let driver;
 
@@ -30,14 +30,14 @@ describe("triggers", function() {
   describe("check triggers for different variations", () => {
     let addonId;
 
-    describe("triggers captive portal variation", () => {
+    describe("triggers the captive portal in the captive portal variation", () => {
       before(async () => {
         await utils.setPreference(driver, `${utils.PREF_BRANCH}.test.variationName`, "captive-portal");
         addonId = await utils.setupWebdriver.installAddon(driver);
         await driver.sleep(SETUP_DELAY);
       });
 
-      it("shows recommendation within 10 seconds of captive portal being triggered", async () => {
+      it("shows the recommendation within 10 seconds of the captive portal notification being triggered", async () => {
         driver.setContext(Context.CHROME);
         await driver.executeScript(`
           Services.obs.notifyObservers(null, "captive-portal-login");
@@ -45,6 +45,19 @@ describe("triggers", function() {
         await driver.sleep(12000);
         utils.isNotificationVisible(driver);
       });
+
+      it("does not show the recommendation again immediately after the first recommendation", async () => {
+        driver.setContext(Context.CHROME);
+
+        utils.killNotification(driver);
+        driver.sleep(SETUP_DELAY);
+        await driver.executeScript(`
+          Services.obs.notifyObservers(null, "captive-portal-login");
+        `);
+        await driver.sleep(12000);
+        utils.isNotificationVisible(driver, false);
+      });
+
 
       after(async () => {
         await utils.clearPreference(driver, `${utils.PREF_BRANCH}.test.variationName` );
@@ -55,14 +68,14 @@ describe("triggers", function() {
       });
     });
 
-    describe("triggers streaming hostname variation", () => {
+    describe("triggers the recommendaton in the streaming hostname variation", () => {
       before(async () => {
         await utils.setPreference(driver, `${utils.PREF_BRANCH}.test.variationName`, "streaming-hostname");
         addonId = await utils.setupWebdriver.installAddon(driver);
         await driver.sleep(SETUP_DELAY);
       });
 
-      it("shows recommendation when netflix.com is opened", async () => {
+      it("shows the recommendation when netflix.com is opened", async () => {
         driver.setContext(Context.CHROME);
         await driver.executeScript(`
           const tab = window.gBrowser.addWebTab("http://netflix.com");
@@ -73,6 +86,20 @@ describe("triggers", function() {
         utils.isNotificationVisible(driver);
       });
 
+      it("does not show the recommendation again immediately after the first recommendation", async () => {
+        driver.setContext(Context.CHROME);
+
+        utils.killNotification(driver);
+        driver.sleep(SETUP_DELAY);
+        await driver.executeScript(`
+          const tab = window.gBrowser.addWebTab("http://netflix.com");
+          window.gBrowser.selectedTab = tab;
+        `);
+
+        await driver.sleep(SETUP_DELAY * 5);
+        utils.isNotificationVisible(driver, false);
+      });
+
       after(async () => {
         await utils.clearPreference(driver, `${utils.PREF_BRANCH}.test.variationName` );
         await utils.clearPreference(driver, `${utils.PREF_BRANCH}.started` );
@@ -82,7 +109,7 @@ describe("triggers", function() {
       });
     });
 
-    describe("triggers privacy hostname variation", () => {
+    describe("triggers the recommendation in the privacy hostname variation", () => {
       before(async () => {
         await utils.setPreference(driver, `${utils.PREF_BRANCH}.test.variationName`, "privacy-hostname");
         addonId = await utils.setupWebdriver.installAddon(driver);
@@ -100,6 +127,20 @@ describe("triggers", function() {
         utils.isNotificationVisible(driver);
       });
 
+      it("does not show the recommendation again immediately after the first recommendation", async () => {
+        driver.setContext(Context.CHROME);
+
+        utils.killNotification(driver);
+        driver.sleep(SETUP_DELAY);
+        await driver.executeScript(`
+          const tab = window.gBrowser.addWebTab("http://symantec.com");
+          window.gBrowser.selectedTab = tab;
+        `);
+
+        await driver.sleep(SETUP_DELAY * 5);
+        utils.isNotificationVisible(driver, false);
+      });
+
       after(async () => {
         await utils.clearPreference(driver, `${utils.PREF_BRANCH}.test.variationName` );
         await utils.clearPreference(driver, `${utils.PREF_BRANCH}.started` );
@@ -109,14 +150,14 @@ describe("triggers", function() {
       });
     });
 
-    describe("checks that control does not show notifications", () => {
+    describe("checks that the control variation does not show any notifications", () => {
       before(async () => {
         await utils.setPreference(driver, `${utils.PREF_BRANCH}.test.variationName`, "control");
         addonId = await utils.setupWebdriver.installAddon(driver);
         await driver.sleep(SETUP_DELAY);
       });
 
-      it("does not show show recommendation with any trigger", async () => {
+      it("does not show show the recommendation with any trigger", async () => {
         driver.setContext(Context.CHROME);
         await driver.executeScript(`
           const tab = window.gBrowser.addWebTab("http://symantec.com");
