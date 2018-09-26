@@ -12,29 +12,46 @@ npm run build
 ```
 The extension zip file can then be found in the /dist folder.
 
+### Run the tests
+```
+npm test
+```
+
 ### Run the extension
 
 This extension contains privileged code as WebExtension APIs and therefore can only be run in Firefox Nightly or Dev edition.
 
+#### To run the extension in the command line
+Use the following command to randomly get into one of the branches
+```npm start```
+
+If you want a specific branch, run:
+```npm run branch:[BRANCH_NAME]```
+
+For instance, to run the captive-portal branch, you can use:
+```npm run branch:captive-portal```
+
+See the list of branch names below.
+
 #### To run the extension in the browser:
-1. Unzip the extension
+1. Download the extension zip file
 2. Open Firefox Nightly
 3. Set your desired branch if you want to (see next section), otherwise you will randomly get into one of the branches
 4. Go to __about:debugging__
 5. Click on "Load Temporary Add-on..."
-6. Select a file from the unzipped extension folder
+6. Select the extension zip file
 
 ##### To set the branch (should be done before loading the study extension):
 1. Go to about:config
 2. Click on "I accept the risk!"
 3. Right click and select "New -> String" form the context menu
 4. Create the "extensions.vpn-recommendation-study-1_shield_mozilla_org.test.variationName" pref
-5. Set the value to the desired branch name (see below)
+5. Set the value to the desired branch name (see the list of branch names below)
 
 ##### Branch names
 - captive-portal: triggered when you connect to a public (unencrypted) wifi network with a captive portal page
 - privacy-hostname: triggered when you visit websites, examples include disconnect.me and strongvpn.com
-- control
+- control: no notifications are shown
 - catch-all: triggered after you use Firefox for a while
 - streaming-hostname: triggered when you visit websites, examples include hulu.com and netflix.com
 
