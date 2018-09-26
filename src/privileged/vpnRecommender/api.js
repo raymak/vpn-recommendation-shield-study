@@ -519,7 +519,7 @@ this.vpnRecommender = class extends ExtensionAPI {
 
   cleanUp() {
     log("cleaning up VPN Recommender");
-    
+
     for (const f of this.cleanUpFunctions) {
       f();
     }
