@@ -8,14 +8,14 @@
     "doc": "doc"
   },
   "scripts": {
-    "test": "npm run lint && npm run test:functional",
+    "test": "npm run lint && npm run test:func",
     "lint": "npm run eslint && web-ext lint",
     "eslint": "eslint . --ext jsm,js,json",
     "eslint-fix": "npm run eslint -- --fix",
     "start": "web-ext run --no-reload",
     "watch": "web-ext run",
     "build": "web-ext build",
-    "test:functional": "FIREFOX_BINARY=${FIREFOX_BINARY} ADDON_ZIP=./dist/vpn_recommendation_shield_study_bug_1478770_-0.3.zip mocha test/functional/"
+    "test:func": "FIREFOX_BINARY=${FIREFOX_BINARY} ADDON_ZIP=./dist/vpn_recommendation_shield_study_bug_1478770_-0.3.zip mocha test/functional/"
   },
   "repository": {
     "type": "git",
