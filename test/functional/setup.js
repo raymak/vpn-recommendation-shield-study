@@ -11,7 +11,7 @@ const SETUP_DELAY = process.env.DELAY ? parseInt(process.env.DELAY) : 500;
 
 describe("setup", function() {
   // This gives Firefox time to start, and us a bit longer during some of the tests.
-  this.timeout(SETUP_DELAY * 15);
+  this.timeout(SETUP_DELAY * 20);
 
   let driver;
 
