@@ -7,6 +7,7 @@
     "lib": "src",
     "doc": "doc"
   },
+  "pref_branch": "extensions.vpn-recommendation-study-1_shield_mozilla_org.test.variationName",
   "scripts": {
     "test": "npm run lint && npm run test:func",
     "lint": "npm run eslint && web-ext lint",
@@ -15,7 +16,12 @@
     "start": "web-ext run --no-reload",
     "watch": "web-ext run",
     "build": "web-ext build",
-    "test:func": "FIREFOX_BINARY=${FIREFOX_BINARY} ADDON_ZIP=./dist/vpn_recommendation_shield_study_bug_1478770_-0.3.zip mocha test/functional/"
+    "test:func": "FIREFOX_BINARY=${FIREFOX_BINARY} ADDON_ZIP=./dist/vpn_recommendation_shield_study_bug_1478770_-0.3.zip mocha test/functional/",
+    "branch:captive-portal": "npm run start -- --pref=$npm_package_pref_branch=captive-portal",
+    "branch:catch-all": "npm run start -- --pref=$npm_package_pref_branch=catch-all",
+    "branch:control": "npm run start -- --pref=$npm_package_pref_branch=control",
+    "branch:privacy-hostname": "npm run start -- --pref=$npm_package_pref_branch=privacy-hostname",
+    "branch:streaming-hostname": "npm run start -- --pref=$npm_package_pref_branch=streaming-hostname"
   },
   "repository": {
     "type": "git",
