@@ -42,35 +42,15 @@ const baseStudySetup = {
   endings: {
     /** standard endings */
     "user-disable": {
-      baseUrls: [
-        "https://qsurvey.mozilla.com/s3/Shield-Study-Example-Survey/?reason=user-disable",
-      ],
+      baseUrls: [],
     },
     ineligible: {
       baseUrls: [],
     },
     expired: {
       baseUrls: [
-        "https://qsurvey.mozilla.com/s3/Shield-Study-Example-Survey/?reason=expired",
+        "https://qsurvey.mozilla.com/s3/VPN-Post-Shield-Survey?reason=expired",
       ],
-    },
-
-    /** Study specific endings */
-    "used-often": {
-      baseUrls: [
-        "https://qsurvey.mozilla.com/s3/Shield-Study-Example-Survey/?reason=used-often",
-      ],
-      category: "ended-positive",
-    },
-    "a-non-url-opening-ending": {
-      baseUrls: [],
-      category: "ended-neutral",
-    },
-    "introduction-leave-study": {
-      baseUrls: [
-        "https://qsurvey.mozilla.com/s3/Shield-Study-Example-Survey/?reason=introduction-leave-study",
-      ],
-      category: "ended-negative",
     },
   },
 
@@ -99,7 +79,7 @@ const baseStudySetup = {
 
   // maximum time that the study should run, from the first run
   expire: {
-    days: 14,
+    days: 30,
   },
 };
 

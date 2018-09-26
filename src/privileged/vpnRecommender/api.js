@@ -18,6 +18,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   setInterval: "resource://gre/modules/Timer.jsm",
   clearInterval: "resource://gre/modules/Timer.jsm",
   PrivateBrowsingUtils: "resource://gre/modules/PrivateBrowsingUtils.jsm",
+  AddonManager: "resource://gre/modules/AddonManager.jsm",
 });
 
 const PREF_BRANCH = "extensions.vpn-recommendation-study-1_shield_mozilla_org";
@@ -96,11 +97,13 @@ this.vpnRecommender = class extends ExtensionAPI {
       that.killNotification();
     });
 
-    log("importing Doorhanger done");
     this.extensionUrl = context.extension.getURL();
 
     const EventManager = ExtensionCommon.EventManager;
 
+    this.listenForAddonDisableOrUninstall(context.extension.id); // https://github.com/mozilla/shield-studies-addon-utils/issues/247
+
+    AddonManager.addAddonListener(this);
     return {
       experiments: {
         vpnRecommender: {
@@ -204,6 +207,33 @@ this.vpnRecommender = class extends ExtensionAPI {
     });
 
     return promise;
+  }
+
+  listenForAddonDisableOrUninstall(addonId) {
+    let handleDisableOrUninstall;
+    const that = this;
+
+    const listener = {
+      onUninstalling(addon) {
+        handleDisableOrUninstall(addon);
+      },
+      onDisabled(addon) {
+        handleDisableOrUninstall(addon);
+      },
+    };
+
+    handleDisableOrUninstall = (addon) => {
+      if (addon.id !== addonId) {
+        return;
+      }
+
+      AddonManager.removeAddonListener(listener);
+
+      that.cleanUp();
+      addon.uninstall();
+    };
+
+    AddonManager.addAddonListener(listener);
   }
 
   registerListeners() {
@@ -488,6 +518,12 @@ this.vpnRecommender = class extends ExtensionAPI {
     for (const f of this.cleanUpFunctions) {
       f();
     }
+
+    // clean up prefs
+    Preferences.reset(DONT_SHOW_PREF);
+    Preferences.reset(NOTIFICATION_COUNT_PREF);
+    Preferences.reset(LAST_NOTIFICATION_PREF);
+    Preferences.reset(TEST_PREF);
   }
 
   getInternals() {
