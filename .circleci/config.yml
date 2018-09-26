@@ -62,7 +62,6 @@ jobs:
 
       - store_artifacts:
           path: "dist"
-          destination: "dist"
 
       # Needs signed add-on to work on branded releases
       #- run:

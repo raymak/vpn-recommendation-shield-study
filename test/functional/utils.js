@@ -87,7 +87,7 @@ async function checkPrefs(driver, prefs) {
   }
 }
 
-async function isNotificationVisible(driver) {
+async function isNotificationVisible(driver, value = true) {
   const PANEL_ID = "vpn-recommender-doorhanger-panel";
 
   driver.setContext(Context.CHROME);
@@ -95,7 +95,7 @@ async function isNotificationVisible(driver) {
     return window.document.getElementById("${PANEL_ID}");
   `);
 
-  assert.equal(Boolean(elem), true, "notification must be visible");
+  assert.equal(Boolean(elem), value, "notification must be visible");
 }
 
 module.exports = {
