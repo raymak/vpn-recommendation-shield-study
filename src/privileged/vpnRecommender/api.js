@@ -330,13 +330,18 @@ this.vpnRecommender = class extends ExtensionAPI {
       const onOpenWindow = function(e) {
         winWeak.get().gBrowser.addProgressListener(progressListener);
         winWeak.get().removeEventListener("load", onOpenWindow);
+        that.addCleanUpFunction(() => {
+          if (winWeak.get()) {
+            winWeak.get().gBrowser.removeProgressListener(progressListener);
+          }
+        });
       };
 
       if (winWeak.get().gBrowser) {
         winWeak.get().gBrowser.addProgressListener(progressListener);
         that.addCleanUpFunction(() => {
           if (winWeak.get()) {
-            winWeak.get().gBrowser.removeEventListener(progressListener);
+            winWeak.get().gBrowser.removeProgressListener(progressListener);
           }
         });
       } else {
@@ -514,7 +519,7 @@ this.vpnRecommender = class extends ExtensionAPI {
 
   cleanUp() {
     log("cleaning up VPN Recommender");
-
+    
     for (const f of this.cleanUpFunctions) {
       f();
     }

@@ -9,6 +9,13 @@ const utils = require("./utils");
 
 const SETUP_DELAY = process.env.DELAY ? parseInt(process.env.DELAY) : 500;
 
+const PREFS_TO_BE_CLEANED_UP = {
+  [`${utils.PREF_BRANCH}.started`]: null,
+  [`${utils.PREF_BRANCH}.dontShowChecked`]: null,
+  [`${utils.PREF_BRANCH}.notificationCount`]: null,
+  [`${utils.PREF_BRANCH}.lastNotification`]: null,
+};
+
 describe("setup", function() {
   // This gives Firefox time to start, and us a bit longer during some of the tests.
   this.timeout(SETUP_DELAY * 20);
@@ -26,11 +33,11 @@ describe("setup", function() {
     driver.quit();
   });
 
-  describe("sets up the correct prefs, depending on the variation", function() {
+  describe("sets up the correct prefs, depending on the variation", () => {
 
     let addonId;
 
-    describe("loads and sets the correct prefs for variation captive-portal", function() {
+    describe("loads and sets the correct prefs for variation captive-portal", () => {
       before(async () => {
         await utils.setPreference(driver, `${utils.PREF_BRANCH}.test.variationName`, "captive-portal");
         addonId = await utils.setupWebdriver.installAddon(driver);
@@ -44,16 +51,19 @@ describe("setup", function() {
         });
       });
 
-      after(async () => {
-        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.test.variationName` );
-        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.started` );
-        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.variation` );
-
+      it("has the correct prefs after uninstall", async () => {
         await utils.setupWebdriver.uninstallAddon(driver, addonId);
+        await driver.sleep(SETUP_DELAY);
+        await utils.checkPrefs(driver, PREFS_TO_BE_CLEANED_UP);
+      });
+
+      after(async () => {
+        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.variation`);
+        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.test.variationName`);
       });
     });
 
-    describe("loads and sets the correct prefs for variation streaming-hostname", function() {
+    describe("loads and sets the correct prefs for variation streaming-hostname", () => {
       before(async () => {
         await utils.setPreference(driver, `${utils.PREF_BRANCH}.test.variationName`, "streaming-hostname");
         addonId = await utils.setupWebdriver.installAddon(driver);
@@ -67,16 +77,19 @@ describe("setup", function() {
         });
       });
 
-      after(async () => {
-        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.test.variationName` );
-        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.started` );
-        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.variation` );
-
+      it("has the correct prefs after uninstall", async () => {
         await utils.setupWebdriver.uninstallAddon(driver, addonId);
+        await driver.sleep(SETUP_DELAY);
+        await utils.checkPrefs(driver, PREFS_TO_BE_CLEANED_UP);
+      });
+
+      after(async () => {
+        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.variation`);
+        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.test.variationName`);
       });
     });
 
-    describe("loads and sets the correct prefs for variation privacy-hostname", function() {
+    describe("loads and sets the correct prefs for variation privacy-hostname", () => {
       before(async () => {
         await utils.setPreference(driver, `${utils.PREF_BRANCH}.test.variationName`, "privacy-hostname");
         addonId = await utils.setupWebdriver.installAddon(driver);
@@ -90,16 +103,19 @@ describe("setup", function() {
         });
       });
 
-      after(async () => {
-        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.test.variationName` );
-        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.started` );
-        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.variation` );
-
+      it("has the correct prefs after uninstall", async () => {
         await utils.setupWebdriver.uninstallAddon(driver, addonId);
+        await driver.sleep(SETUP_DELAY);
+        await utils.checkPrefs(driver, PREFS_TO_BE_CLEANED_UP);
+      });
+
+      after(async () => {
+        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.variation`);
+        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.test.variationName`);
       });
     });
 
-    describe("loads and sets the correct prefs for variation catch-all", function() {
+    describe("loads and sets the correct prefs for variation catch-all", () => {
       before(async () => {
         await utils.setPreference(driver, `${utils.PREF_BRANCH}.test.variationName`, "catch-all");
         addonId = await utils.setupWebdriver.installAddon(driver);
@@ -113,16 +129,19 @@ describe("setup", function() {
         });
       });
 
-      after(async () => {
-        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.test.variationName` );
-        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.started` );
-        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.variation` );
-
+      it("has the correct prefs after uninstall", async () => {
         await utils.setupWebdriver.uninstallAddon(driver, addonId);
+        await driver.sleep(SETUP_DELAY);
+        await utils.checkPrefs(driver, PREFS_TO_BE_CLEANED_UP);
+      });
+
+      after(async () => {
+        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.variation`);
+        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.test.variationName`);
       });
     });
 
-    describe("loads and sets the correct prefs for variation control", function() {
+    describe("loads and sets the correct prefs for variation control", () => {
       before(async () => {
         await utils.setPreference(driver, `${utils.PREF_BRANCH}.test.variationName`, "control");
         addonId = await utils.setupWebdriver.installAddon(driver);
@@ -136,12 +155,15 @@ describe("setup", function() {
         });
       });
 
-      after(async () => {
-        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.test.variationName` );
-        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.started` );
-        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.variation` );
-
+      it("has the correct prefs after uninstall", async () => {
         await utils.setupWebdriver.uninstallAddon(driver, addonId);
+        await driver.sleep(SETUP_DELAY);
+        await utils.checkPrefs(driver, PREFS_TO_BE_CLEANED_UP);
+      });
+
+      after(async () => {
+        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.variation`);
+        await utils.clearPreference(driver, `${utils.PREF_BRANCH}.test.variationName`);
       });
     });
 

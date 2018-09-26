@@ -44,6 +44,7 @@ const FIREFOX_PREFERENCES = {
 };
 
 const PREF_BRANCH = "extensions.vpn-recommendation-study-1_shield_mozilla_org";
+const WIDGET_ID = "shield.vpn-recommendation-study-1_shield_mozilla_org";
 
 // Re-usable test methods from shield-studies-addon-utils
 const { executeJs } = require("shield-studies-addon-utils/testUtils/executeJs");
@@ -89,6 +90,7 @@ async function checkPrefs(driver, prefs) {
 module.exports = {
   FIREFOX_PREFERENCES,
   PREF_BRANCH,
+  WIDGET_ID,
   setPreference,
   getPreference,
   clearPreference,
