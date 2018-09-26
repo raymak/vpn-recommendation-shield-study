@@ -58,7 +58,7 @@ jobs:
 
       - run:
           name: Build add-on
-          command: npm run build
+          command: npm run build && ls -lh dist/*.zip && unzip -vl dist/vpn_recommendation_shield_study_*.zip | grep -v "/$"
 
       - store_artifacts:
           path: "dist"
@@ -80,13 +80,9 @@ jobs:
       #    name: Functional tests with Firefox Developer Edition
       #    command: FIREFOX_BINARY=/home/circleci/checkout/firefox-devedition/firefox-bin npm run test:func && mkdir test/results/logs-devedition && mv test/results/logs/* test/results/logs-devedition/
 
-      #- run:
-      #    name: Functional tests with Firefox Nightly
-      #    command: FIREFOX_BINARY=/home/circleci/checkout/firefox-nightly/firefox-bin npm run test:func && mkdir test/results/logs-nightly && mv test/results/logs/* test/results/logs-nightly/
-
       - run:
-          name: Test add-on
-          command: npm run test
+          name: Functional tests with Firefox Nightly
+          command: FIREFOX_BINARY=/home/circleci/checkout/firefox-nightly/firefox-bin npm run test:functional && mkdir test/results/logs-nightly && mv test/results/logs/* test/results/logs-nightly/
 
       - store_artifacts:
           path: "test/results"
