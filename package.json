@@ -1,6 +1,6 @@
 {
   "name": "shield-vpn-recommendation-study",
-  "version": "0.1",
+  "version": "0.1.1",
   "description": "Firefox Shield study that recommends installing VPN software to those users who may benefit from it.",
   "directories": {
     "test": "test",
@@ -8,13 +8,14 @@
     "doc": "doc"
   },
   "scripts": {
-    "test": "npm run lint",
+    "test": "npm run lint && npm run test:functional",
     "lint": "npm run eslint && web-ext lint",
     "eslint": "eslint . --ext jsm,js,json",
     "eslint-fix": "npm run eslint -- --fix",
     "start": "web-ext run --no-reload",
     "watch": "web-ext run",
-    "build": "web-ext build"
+    "build": "web-ext build",
+    "test:functional": "FIREFOX_BINARY=${FIREFOX_BINARY} ADDON_ZIP=./dist/vpn_recommendation_shield_study_bug_1478770_-0.3.zip mocha test/functional/"
   },
   "repository": {
     "type": "git",
@@ -24,10 +25,17 @@
     "web-ext": "^2.9.1"
   },
   "devDependencies": {
+    "chai": "^4.1.2",
     "eslint": "^5.6.0",
     "eslint-plugin-json": "^1.2.0",
     "eslint-plugin-mozilla": "^0.16.1",
-    "eslint-plugin-no-unsanitized": "^3.0.2"
+    "eslint-plugin-no-unsanitized": "^3.0.2",
+    "shield-studies-addon-utils": "^5.0.3",
+    "fx-runner": "^1.0.9",
+    "geckodriver": "^1.12.2",
+    "get-firefox": "^2.0.0",
+    "mocha": "^5.2.0",
+    "selenium-webdriver": "^3.5.0"
   },
   "keywords": [
     "Shield",

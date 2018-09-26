@@ -41,14 +41,18 @@ const MESSAGES = [
 
 this.EXPORTED_SYMBOLS = ["Doorhanger"];
 
-class Doorhanger {
+var Doorhanger  = class { // eslint-disable-line no-var
   constructor(messageListenerCallback, privilegedURL) {
     this.messageListenerCallback = messageListenerCallback;
     this.privilegedURL = privilegedURL;
     this.contentURL = `${privilegedURL}/content`;
 
-    ChromeUtils.import(`${this.privilegedURL}/RecentWindow.jsm`, this);
+    this.jsms = {};
+
+    Services.scriptloader.loadSubScript(`${this.privilegedURL}/RecentWindow.jsm`, this.jsms);
     log("recent window address", `${this.privilegedURL}/RecentWindow.jsm`);
+
+    this.RecentWindow = this.jsms.RecentWindow;
 
     // Due to bug 1051238 frame scripts are cached forever, so we can't update them
     // as a restartless add-on. The Math.random() is the work around for this.
@@ -196,4 +200,4 @@ class Doorhanger {
         this.messageListenerCallback(message);
     }
   }
-}
+};

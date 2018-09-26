@@ -25,6 +25,8 @@ const DONT_SHOW_PREF = PREF_BRANCH + ".dontShowChecked";
 const NOTIFICATION_COUNT_PREF = PREF_BRANCH + ".notificationCount";
 const LAST_NOTIFICATION_PREF = PREF_BRANCH + ".lastNotification";
 const DEBUG_MODE_PREF = PREF_BRANCH + ".debug_mode";
+const TEST_PREF = PREF_BRANCH + ".started";
+const VARIATION_PREF = PREF_BRANCH + ".variation";
 
 const CP_SUCCESS_XHR_TIMEOUT = 3000;
 const CAPTIVE_PORTAL_URL = "http://detectportal.firefox.com/success.txt";
@@ -72,9 +74,17 @@ this.vpnRecommender = class extends ExtensionAPI {
   getAPI(context) {
     const that = this;
 
-    ChromeUtils.import(context.extension.getURL("privileged/vpnRecommender/Doorhanger.jsm"), this);
-    ChromeUtils.import(context.extension.getURL("privileged/vpnRecommender/VpnRelatedHostnames.jsm"), this);
-    ChromeUtils.import(context.extension.getURL("privileged/vpnRecommender/RecentWindow.jsm"), this);
+    console.log("context", context);
+
+    this.jsms = {}; // workaround for not being able to use jsms with moz:// urls
+
+    Services.scriptloader.loadSubScript(context.extension.getURL("privileged/vpnRecommender/Doorhanger.jsm"), this.jsms);
+    Services.scriptloader.loadSubScript(context.extension.getURL("privileged/vpnRecommender/VpnRelatedHostnames.jsm"), this.jsms);
+    Services.scriptloader.loadSubScript(context.extension.getURL("privileged/vpnRecommender/RecentWindow.jsm"), this.jsms);
+
+    this.Doorhanger = this.jsms.Doorhanger;
+    this.VpnRelatedHostnames = this.jsms.VpnRelatedHostnames;
+    this.RecentWindow = this.jsms.RecentWindow;
 
     this.cleanUpFunctions = [];
 
@@ -135,6 +145,9 @@ this.vpnRecommender = class extends ExtensionAPI {
         "event": "study-start",
       });
     }
+
+    Preferences.set(TEST_PREF, true);
+    Preferences.set(VARIATION_PREF, variation);
   }
 
   async waitForConnection() {
