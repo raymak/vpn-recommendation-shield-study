@@ -10,9 +10,10 @@
   "pref_branch": "extensions.vpn-recommendation-study-1_shield_mozilla_org.test.variationName",
   "scripts": {
     "test": "npm run lint && npm run test:func",
-    "lint": "npm run eslint && web-ext lint",
+    "lint": "npm run eslint && web-ext lint && npm run stylelint",
     "eslint": "eslint . --ext jsm,js,json",
     "eslint-fix": "npm run eslint -- --fix",
+    "stylelint": "stylelint **/*.css",
     "start": "web-ext run --no-reload",
     "watch": "web-ext run",
     "build": "web-ext build",
@@ -36,12 +37,15 @@
     "eslint-plugin-json": "^1.2.0",
     "eslint-plugin-mozilla": "^0.16.1",
     "eslint-plugin-no-unsanitized": "^3.0.2",
-    "shield-studies-addon-utils": "^5.0.3",
     "fx-runner": "^1.0.9",
     "geckodriver": "^1.12.2",
     "get-firefox": "^2.0.0",
     "mocha": "^5.2.0",
-    "selenium-webdriver": "^3.5.0"
+    "selenium-webdriver": "^3.5.0",
+    "shield-studies-addon-utils": "^5.0.3",
+    "stylelint": "^8.4.0",
+    "stylelint-config-default": "^0.2.0",
+    "stylelint-order": "^0.7.0"
   },
   "keywords": [
     "Shield",

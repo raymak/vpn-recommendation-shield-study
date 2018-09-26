@@ -8,68 +8,41 @@
 }
 
 body {
-  color: #333333;
-  background-color: #FFFFFF;
-  --theme-color: #333333;
-  --theme-background-color: #FFFFFF;
-  background: transparent;
-  font-family:  -apple-system, "Segoe UI",
-    "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans",
-    "Droid Sans", "Helvetica Neue", sans-serif;
+  color: #333;
+  background-color: #fff;
+  --theme-color: #333;
+  --theme-background-color: #fff;
+  font-family: -apple-system, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   width: 280px;
-  padding: 0 0;
-  margin: 0 0;
+  padding: 0;
+  margin: 0;
 }
 
 body.dark {
-  --theme-color: #FFFFFF;
+  --theme-color: #fff;
   --theme-background-color: #4a4a4f;
-}
-
-/*=====MINIMAL RESETS, ADJUSTMENTS, ETC =====*/
-h1, h2, h3, h4, h5, h6 {
-  color: #424f5a;
-}
-
-h4, h5, h6 {
-  margin-bottom: 1.66em; 
-}
-
-ul, ol, p {
-  line-height: 20px;
-  margin: .5em 0 0em 0; 
-}
-
-#recomcontainer {
-  transition: opacity 0.5s visibility 0s ease 0.5s;
-  opacity: 1;
-}
-
-#recomcontainer.invisible {
-  visibility: hidden;
-  opacity: 0;
 }
 
 #picture {
   width: 100%;
   text-align: center;
-  height:  130px;
-  background: url('../images/Doorhanger Hero@1x.png');
+  height: 130px;
+  background: url("../images/Doorhanger Hero@1x.png");
   background-size: contain;
 }
 
-@media  (min--moz-device-pixel-ratio:1.5),
-        (min-resolution:1.5dppx) {
-    #picture {
-        background: url('../images/Doorhanger Hero@2x.png');
-        background-size: contain;
-    }
+@media (min--moz-device-pixel-ratio: 1.5),
+  (min-resolution: 1.5dppx) {
+  #picture {
+    background: url("../images/Doorhanger Hero@2x.png");
+    background-size: contain;
+  }
 }
 
 #textsection {
   width: 75%;
 }
- 
+
 #headersection {
   background-color: var(--theme-background-color);
   width: 100%;
@@ -107,10 +80,10 @@ ul, ol, p {
 }
 
 #messagesection {
-  width:  100%;
+  width: 100%;
   justify-content: center;
   align-items: center;
-  padding: 10px 20px; 
+  padding: 10px 20px;
 }
 
 #message-header {
@@ -132,7 +105,6 @@ ul, ol, p {
 }
 
 #bottomsection {
-  /*position: relative;   */
   background-color: rgba(0, 0, 0, 0.06);
   border-top: 1px solid rgba(0, 0, 0, 0.15);
   color: #1a1a1a;
@@ -145,9 +117,9 @@ ul, ol, p {
 
 .button-style {
   font-size: 13px;
-  line-height: 0px;
+  line-height: 0;
   display: inline-block;
-  color: #FFF;
+  color: #fff;
   background-color: #0996f8;
   box-shadow: 0 1px 0 #0670cc inset;
   border-style: solid;
@@ -155,7 +127,7 @@ ul, ol, p {
   border-color: transparent;
   flex: 1 1 auto;
   height: 100%;
-  margin: -1px -0px;
+  margin: -1px 0;
   padding: 12px;
   text-align: center;
   width: 50%;
@@ -164,9 +136,9 @@ ul, ol, p {
 #dontshow-container {
   display: flex;
   justify-content: left;
-  align-items: center; 
+  align-items: center;
   width: 100%;
-  padding: 0px 0px 20px 20px;
+  padding: 0 0 20px 20px;
 }
 
 #dontshow {
@@ -176,7 +148,7 @@ ul, ol, p {
 #dont-show-checkbox {
   width: 16px;
   height: 16px;
-  margin-left: 0px;
+  margin-left: 0;
 }
 
 .button-style:hover {
