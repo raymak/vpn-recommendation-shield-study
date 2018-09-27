@@ -1,0 +1,181 @@
+/*! This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  color: #333;
+  background-color: #fff;
+  --theme-color: #333;
+  --theme-background-color: #fff;
+  font-family: -apple-system, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  width: 280px;
+  padding: 0;
+  margin: 0;
+}
+
+body.dark {
+  --theme-color: #fff;
+  --theme-background-color: #4a4a4f;
+}
+
+#picture {
+  width: 100%;
+  text-align: center;
+  height: 130px;
+  background: url("../images/Doorhanger Hero@1x.png");
+  background-size: contain;
+}
+
+@media (min--moz-device-pixel-ratio: 1.5),
+  (min-resolution: 1.5dppx) {
+  #picture {
+    background: url("../images/Doorhanger Hero@2x.png");
+    background-size: contain;
+  }
+}
+
+#textsection {
+  width: 75%;
+}
+
+#headersection {
+  background-color: var(--theme-background-color);
+  width: 100%;
+  height: 41px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#headercontainer {
+  width: 224px;
+  display: flex;
+}
+
+.info {
+  width: 28px;
+}
+
+#header {
+  color: var(--theme-color);
+  font-size: 13px;
+  margin-left: auto;
+  margin-right: auto;
+  font-weight: bold;
+}
+
+#right-info {
+  height: 16px;
+}
+
+#right-info svg {
+  height: 16px;
+  width: 16px;
+  fill: var(--theme-color);
+}
+
+#messagesection {
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 20px;
+}
+
+#message-header {
+  margin-right: auto;
+  margin-left: auto;
+  text-align: left;
+  font-size: 17px;
+  height: 48px;
+  margin-bottom: 10px;
+  line-height: 24px;
+  letter-spacing: -0.2px;
+}
+
+#message {
+  font-size: 13px;
+  min-height: 72px;
+  line-height: 18px;
+  letter-spacing: -0.1px;
+}
+
+#bottomsection {
+  background-color: rgba(0, 0, 0, 0.06);
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+  color: #1a1a1a;
+  display: flex;
+  flex-direction: row;
+  height: 41px;
+  margin-top: -1px;
+  padding: 0;
+}
+
+.button-style {
+  font-size: 13px;
+  line-height: 0;
+  display: inline-block;
+  color: #fff;
+  background-color: #0996f8;
+  box-shadow: 0 1px 0 #0670cc inset;
+  border-style: solid;
+  border-width: 1px;
+  border-color: transparent;
+  flex: 1 1 auto;
+  height: 100%;
+  margin: -1px 0;
+  padding: 12px;
+  text-align: center;
+  width: 50%;
+}
+
+#dontshow-container {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  width: 100%;
+  padding: 0 0 20px 20px;
+}
+
+#dontshow {
+  font-size: 13px;
+}
+
+#dont-show-checkbox {
+  width: 16px;
+  height: 16px;
+  margin-left: 0;
+}
+
+.button-style:hover {
+  background-color: #0670cc;
+  box-shadow: 0 1px 0 #005bab inset;
+}
+
+.button-style:hover:active {
+  background-color: #005bab;
+  box-shadow: 0 1px 0 #004480 inset;
+}
+
+#sec-button {
+  background-color: #ebebeb;
+  color: black;
+  border-color: transparent;
+  text-align: center;
+  box-shadow: 0 1px 0 #d4d4d4 inset;
+  width: 50%;
+}
+
+#sec-button:hover {
+  background-color: #d4d4d4;
+  box-shadow: 0 1px 0 #b1b1b1 inset;
+}
+
+#sec-button:hover:active {
+  background-color: #b1b1b1;
+  box-shadow: 0 1px 0 #858585 inset;
+}

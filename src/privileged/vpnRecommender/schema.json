@@ -1,0 +1,94 @@
+[
+	{
+		"namespace": "experiments.vpnRecommender",
+		"description": "VPN Recommender Shield Study",
+		"functions": [
+			{
+				"name": "echo",
+				"type": "function",
+				"description": "Echoes the input string",
+				"async": true,
+				"parameters": [
+					{
+						"name": "str",
+						"type": "string",
+						"description": "echo this input"
+					}
+				]
+			},
+
+			{
+				"name": "start",
+				"type": "function",
+				"description": "starts the VPN recommender study feature",
+				"asnyc": true,
+				"parameters": [
+					{
+						"name": "variation",
+						"type": "string",
+						"description": "study variation"
+					},
+					{
+						"name": "isFirstTime",
+						"type": "boolean",
+						"description": "whether this is the first run of the study addon"
+					}
+				]
+			},
+
+			{
+				"name": "getInternals",
+				"type": "function",
+				"description": "gets the internal state of the study feature",
+				"asnyc": true,
+				"parameters": []
+			},
+
+			{
+				"name": "fakeCaptivePortal",
+				"type": "function",
+				"description": "triggers the captive portal notification for testing purposes",
+				"async": true,
+				"parameters": []
+			},
+
+			{
+				"name": "cleanUp",
+				"type": "function",
+				"description": "cleans up the VPN recommender feature and its listeners",
+				"async": true,
+				"parameters": []
+			}
+
+		],
+
+		"events": [
+			{
+				"name": "onSendTelemetry",
+				"type": "function",
+				"description": "listen on Telemetry transmission from the study feature code",
+				"async": true,
+				"parameters": [
+					{
+						"name": "data",
+						"description": "data object to be passed to the Telemetry sender",
+						"type": "object"
+					}
+				]
+			},
+
+			{
+				"name": "onEndStudy",
+				"type": "function",
+				"asnyc": true,
+				"parameters": [
+					{
+						"name": "reason",
+						"description": "reason why the study was ended",
+						"type": "string"
+					}
+				]
+			}
+		]
+	}
+]
