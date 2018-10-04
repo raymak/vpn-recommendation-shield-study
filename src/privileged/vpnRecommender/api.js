@@ -56,19 +56,19 @@ const log = function(...args) {
 const DOORHANGER_MESSAGES = {
   "captive-portal": {
     header: "It appears you are browsing on an unsecured wireless network.",
-    text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connect, no matter where you are.",
+    text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connection, no matter where you are.",
   },
   "privacy-hostname": {
     header: "Make Firefox even more secure with ProtonVPN.",
-    text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connect, no matter where you are.",
+    text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connection, no matter where you are.",
   },
   "streaming-hostname": {
     header: "Make Firefox even more secure with ProtonVPN.",
-    text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connect, no matter where you are.",
+    text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connection, no matter where you are.",
   },
   "catch-all": {
     header: "Make Firefox even more secure with ProtonVPN.",
-    text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connect, no matter where you are.",
+    text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connection, no matter where you are.",
   },
 };
 
@@ -79,24 +79,25 @@ this.vpnRecommender = class extends ExtensionAPI {
 
     console.log("context", context);
 
-    this.jsms = {}; // workaround for not being able to use jsms with moz:// urls
+    const jsms = {}; // workaround for not being able to use jsms with moz:// urls
 
-    Services.scriptloader.loadSubScript(context.extension.getURL("privileged/vpnRecommender/Doorhanger.jsm"), this.jsms);
-    Services.scriptloader.loadSubScript(context.extension.getURL("privileged/vpnRecommender/VpnRelatedHostnames.jsm"), this.jsms);
-    Services.scriptloader.loadSubScript(context.extension.getURL("privileged/vpnRecommender/RecentWindow.jsm"), this.jsms);
+    Services.scriptloader.loadSubScript(context.extension.getURL("privileged/vpnRecommender/Doorhanger.jsm"), jsms);
+    Services.scriptloader.loadSubScript(context.extension.getURL("privileged/vpnRecommender/VpnRelatedHostnames.jsm"), jsms);
+    Services.scriptloader.loadSubScript(context.extension.getURL("privileged/vpnRecommender/RecentWindow.jsm"), jsms);
+    Services.scriptloader.loadSubScript(context.extension.getURL("privileged/vpnRecommender/EveryWindow.jsm"), jsms);
 
-    this.Doorhanger = this.jsms.Doorhanger;
-    this.VpnRelatedHostnames = this.jsms.VpnRelatedHostnames;
-    this.RecentWindow = this.jsms.RecentWindow;
-
-    this.cleanUpFunctions = [];
+    this.Doorhanger = jsms.Doorhanger;
+    this.VpnRelatedHostnames = jsms.VpnRelatedHostnames;
+    this.RecentWindow = jsms.RecentWindow;
+    this.EveryWindow = jsms.EveryWindow;
 
     this.addCleanUpFunction(() => {
+      that.Doorhanger.killAllNotifications();
+
       Cu.unload(context.extension.getURL("privileged/vpnRecommender/Doorhanger.jsm"));
       Cu.unload(context.extension.getURL("privileged/vpnRecommender/VpnRelatedHostnames.jsm"));
       Cu.unload(context.extension.getURL("privileged/vpnRecommender/RecentWindow.jsm"));
-
-      that.killNotification();
+      Cu.unload(context.extension.getURL("privileged/vpnRecommender/EveryWindow.jsm"));
     });
 
     this.extensionUrl = context.extension.getURL();
@@ -115,10 +116,6 @@ this.vpnRecommender = class extends ExtensionAPI {
 
           start(variation, isFirstRun) {
             that.start(variation, isFirstRun);
-          },
-
-          getInternals() {
-            return that.getInternals();
           },
 
           onSendTelemetry: new EventManager(context, "vpnRecommender.onSendTelemetry", fire => {
@@ -319,73 +316,16 @@ this.vpnRecommender = class extends ExtensionAPI {
       },
     };
 
-    // current windows
-    const windowEnumerator = Services.wm.getEnumerator("navigator:browser");
 
-    while (windowEnumerator.hasMoreElements()) {
-      const window = windowEnumerator.getNext();
-
-      if (PrivateBrowsingUtils.isWindowPrivate(window)) continue; // ignore private windows
-
-      const winWeak = Cu.getWeakReference(window);
-
-      const onOpenWindow = function(e) {
-        winWeak.get().gBrowser.addProgressListener(progressListener);
-        winWeak.get().removeEventListener("load", onOpenWindow);
-        that.addCleanUpFunction(() => {
-          if (winWeak.get()) {
-            winWeak.get().gBrowser.removeProgressListener(progressListener);
-          }
-        });
-      };
-
-      if (winWeak.get().gBrowser) {
-        winWeak.get().gBrowser.addProgressListener(progressListener);
-        that.addCleanUpFunction(() => {
-          if (winWeak.get()) {
-            winWeak.get().gBrowser.removeProgressListener(progressListener);
-          }
-        });
-      } else {
-        winWeak.get().addEventListener("load", onOpenWindow, true);
-      }
-    }
-
-    // new windows
-    const windowListener = {
-      onWindowTitleChange() { },
-      onOpenWindow(xulWindow) {
-        // xulWindow is of type nsIXULWindow, we want an nsIDOMWindow
-        // see https://dxr.mozilla.org/mozilla-central/rev/53477d584130945864c4491632f88da437353356/browser/base/content/test/general/browser_fullscreen-window-open.js#316
-        // for how to change XUL into DOM
-        const window = xulWindow.QueryInterface(Ci.nsIInterfaceRequestor)
-          .getInterface(Ci.nsIDOMWindow);
-
-        if (PrivateBrowsingUtils.isWindowPrivate(window)) return; // ignore private windows
-
-        const winWeak = Cu.getWeakReference(window);
-
-        // we need to use a listener function so that it's injected
-        // once the window is loaded / ready
-        const onWindowOpen = () => {
-          winWeak.get().removeEventListener("load", onWindowOpen);
-
-          if (winWeak.get().document.documentElement.getAttribute("windowtype") !== "navigator:browser") return;
-
-          // add progress listener
-          winWeak.get().gBrowser.addProgressListener(progressListener);
-          that.addCleanUpFunction(() => {
-            if (winWeak.get()) {
-              winWeak.get().removeProgressListener(progressListener);
-            }
-          });
-        };
-
-        winWeak.get().addEventListener("load", onWindowOpen, true);
-      },
-      onCloseWindow() { },
+    const windowInit = (win) => {
+      win.gBrowser.addProgressListener(progressListener);
     };
-    Services.wm.addListener(windowListener);
+
+    const windowUninit = (win) => {
+      win.removeProgressListener(progressListener);
+    };
+
+    this.EveryWindow.registerCallback("hostname-trigger", windowInit, windowUninit);
   }
 
   registerPrivacyHostnameTrigger() {
@@ -396,7 +336,10 @@ this.vpnRecommender = class extends ExtensionAPI {
     const that = this;
     setTimeout(() => {
       that.tryShowNotification();
-    }, Preferences.get(CATCH_ALL_TRIGGER_TIMER_OVERRIDE_PREF) * 60 * 1000 || CATCH_ALL_TRIGGER_TIMER_MINUTES * 60 * 1000);
+    }, Preferences.get(
+      CATCH_ALL_TRIGGER_TIMER_OVERRIDE_PREF) * 60 * 1000 ||
+      CATCH_ALL_TRIGGER_TIMER_MINUTES * 60 * 1000
+    );
   }
 
   registerStreamingHostnameTrigger() {
@@ -504,19 +447,11 @@ this.vpnRecommender = class extends ExtensionAPI {
   }
 
   addCleanUpFunction(func) {
-    this.cleanUpFunctions.push(func);
-  }
-
-  killNotification() {
-    const windowEnumerator = Services.wm.getEnumerator("navigator:browser");
-
-    while (windowEnumerator.hasMoreElements()) {
-      const win = windowEnumerator.getNext();
-      const box = win.document.getElementById("vpn-recommender-doorhanger-panel");
-      if (box) {
-        box.remove();
-      }
+    if (!this.cleanUpFunctions) {
+      this.cleanUpFunctions = [];
     }
+
+    this.cleanUpFunctions.push(func);
   }
 
   cleanUp() {
@@ -531,9 +466,5 @@ this.vpnRecommender = class extends ExtensionAPI {
     Preferences.reset(NOTIFICATION_COUNT_PREF);
     Preferences.reset(LAST_NOTIFICATION_PREF);
     Preferences.reset(TEST_PREF);
-  }
-
-  getInternals() {
-    return {};
   }
 };

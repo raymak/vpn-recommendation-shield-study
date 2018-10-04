@@ -126,7 +126,6 @@ body.dark {
   display: flex;
   flex-direction: row;
   height: 41px;
-  margin-top: -1px;
   padding: 0;
 }
 

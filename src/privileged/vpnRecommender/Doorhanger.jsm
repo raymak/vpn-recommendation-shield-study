@@ -83,7 +83,7 @@ var Doorhanger  = class { // eslint-disable-line no-var
     const popAnchor = this.determineAnchorElement(win);
 
     if (panel !== null) {
-      this.killNotification();
+      this.killAllNotifications();
     }
 
     panel = win.document.createElement("panel");
@@ -146,10 +146,10 @@ var Doorhanger  = class { // eslint-disable-line no-var
     return popAnchor;
   }
 
-  killNotification() {
+  static killAllNotifications() {
     const windowEnumerator = Services.wm.getEnumerator("navigator:browser");
 
-    log("killing notification");
+    log("killing notifications");
 
     while (windowEnumerator.hasMoreElements()) {
       const win = windowEnumerator.getNext();
@@ -160,10 +160,9 @@ var Doorhanger  = class { // eslint-disable-line no-var
     }
   }
 
-
   // makes sure all the async messages are received by the receiving end first
-  killNotificationWithDelay(delay) {
-    setTimeout(this.killNotification, delay);
+  killAllNotificationsWithDelay(delay) {
+    setTimeout(Doorhanger.killAllNotifications, delay);
   }
 
   receiveMessage(message) {
@@ -173,22 +172,22 @@ var Doorhanger  = class { // eslint-disable-line no-var
         break;
 
       case "VpnRecommender::dismiss":
-        this.killNotificationWithDelay(0);
+        this.killAllNotificationsWithDelay(0);
         this.messageListenerCallback(message);
         break;
 
       case "VpnRecommender::action":
-        this.killNotificationWithDelay(0);
+        this.killAllNotificationsWithDelay(0);
         this.messageListenerCallback(message);
         break;
 
       case "VpnRecommender::close":
-        this.killNotificationWithDelay(0);
+        this.killAllNotificationsWithDelay(0);
         this.messageListenerCallback(message);
         break;
 
       case "VpnRecommender::timeout":
-        this.killNotification();
+        this.killAllNotifications();
         this.messageListenerCallback(message);
         break;
 
