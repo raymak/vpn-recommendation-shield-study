@@ -29,6 +29,8 @@ const DEBUG_MODE_PREF = PREF_BRANCH + ".debug_mode";
 const TEST_PREF = PREF_BRANCH + ".started";
 const VARIATION_PREF = PREF_BRANCH + ".variation";
 
+const CATCH_ALL_TRIGGER_TIMER_OVERRIDE_PREF = PREF_BRANCH + ".test.catchAllTimerMins";
+
 const CP_SUCCESS_XHR_TIMEOUT = 3000;
 const CAPTIVE_PORTAL_URL = "http://detectportal.firefox.com/success.txt";
 const CP_SUCCESS_CHECK_INTERVAL = 10000;
@@ -394,7 +396,7 @@ this.vpnRecommender = class extends ExtensionAPI {
     const that = this;
     setTimeout(() => {
       that.tryShowNotification();
-    }, CATCH_ALL_TRIGGER_TIMER_MINUTES * 60 * 1000);
+    }, Preferences.get(CATCH_ALL_TRIGGER_TIMER_OVERRIDE_PREF) * 60 * 1000 || CATCH_ALL_TRIGGER_TIMER_MINUTES * 60 * 1000);
   }
 
   registerStreamingHostnameTrigger() {
