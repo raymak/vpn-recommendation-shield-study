@@ -1,0 +1,150 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Shield VPN Recommendation Study",
+  "description": "Shield VPN Recommendation Study addon data sent as Map(s,s).",
+  "type": "object",
+  "oneOf": [
+    {
+      "$ref": "#/definitions/event"
+    },
+    {
+      "$ref": "#/definitions/auto_dismissal_event"
+    },
+    {
+      "$ref": "#/definitions/dont_show_change_event"
+    },
+    {
+      "$ref": "#/definitions/notification_result"
+    },
+    {
+      "$ref": "#/definitions/captive_portal_connection_check"
+    }
+  ],
+  "definitions": {
+    "strbool": {
+      "type": "string",
+      "enum": [
+        "true",
+        "false"
+      ]
+    },
+    "notification_number": {
+      "type": "string",
+      "enum": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    "event": {
+      "properties": {
+        "message_type": {
+          "type": "string",
+          "enum": [
+            "event"
+          ]
+        },
+        "event": {
+          "type": "string",
+          "enum": [
+            "trigger",
+            "notification-delivered",
+            "study-start",
+            "shadow-notification",
+            "action",
+            "info",
+            "dismiss",
+            "auto-dismiss",
+            "dont-show-change"
+          ]
+        }
+      },
+      "additionalProperties": true,
+      "minProperties": 2,
+      "required": [
+        "message_type",
+        "event"
+      ]
+    },
+    "auto_dismissal_event": {
+      "properties": {
+        "message_type": {
+          "type": "string",
+          "enum": [
+            "auto_dismissal_event"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "new-window",
+            "new-tab",
+            "burger-menu"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "minProperties": 2
+    },
+    "dont_show_change_event": {
+      "properties": {
+        "message_type": {
+          "type": "string",
+          "enum": [
+            "dont_show_change_event"
+          ]
+        },
+        "checked": {
+          "$ref": "#/definitions/strbool"
+        }
+      },
+      "additionalProperties": false,
+      "minProperties": 2
+    },
+    "notification_result": {
+      "properties": {
+        "message_type": {
+          "type": "string",
+          "enum": [
+            "notification_result"
+          ]
+        },
+        "number": {
+          "$ref": "#/definitions/notification_number"
+        },
+        "dont-show-checked": {
+          "$ref": "#/definitions/strbool"
+        },
+        "result": {
+          "type": "string",
+          "enum": [
+            "action",
+            "dismiss",
+            "auto-dismiss",
+            "unknown"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "minProperties": 4
+    },
+    "captive_portal_connection_check": {
+      "properties": {
+        "message_type": {
+          "type": "string",
+          "enum": [
+            "captive_portal_connection_check"
+          ]
+        },
+        "success": {
+          "$ref": "#/definitions/strbool"
+        },
+        "time": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "minProperties": 3
+    }
+  }
+}
