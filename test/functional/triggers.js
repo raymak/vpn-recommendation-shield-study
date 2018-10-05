@@ -90,7 +90,7 @@ describe("triggers", function() {
           window.gBrowser.selectedTab = tab;
         `);
 
-        await driver.sleep(SETUP_DELAY * 5);
+        await driver.sleep(SETUP_DELAY * 10);
         await utils.isNotificationVisible(driver);
       });
 
@@ -104,7 +104,7 @@ describe("triggers", function() {
           window.gBrowser.selectedTab = tab;
         `);
 
-        await driver.sleep(SETUP_DELAY * 5);
+        await driver.sleep(SETUP_DELAY * 10);
         await utils.isNotificationVisible(driver, false);
       });
 
@@ -132,7 +132,7 @@ describe("triggers", function() {
           window.gBrowser.selectedTab = tab;
         `);
 
-        await driver.sleep(SETUP_DELAY * 5);
+        await driver.sleep(SETUP_DELAY * 10);
         await utils.isNotificationVisible(driver);
       });
 
@@ -146,7 +146,7 @@ describe("triggers", function() {
           window.gBrowser.selectedTab = tab;
         `);
 
-        await driver.sleep(SETUP_DELAY * 5);
+        await driver.sleep(SETUP_DELAY * 10);
         await utils.isNotificationVisible(driver, false);
       });
 
@@ -169,7 +169,7 @@ describe("triggers", function() {
       });
 
       it("shows recommendation after 1 minute", async () => {
-        await driver.sleep(1 * 60 * 1000 + SETUP_DELAY * 5);
+        await driver.sleep(1 * 60 * 1000 + SETUP_DELAY * 10);
         await utils.isNotificationVisible(driver);
       });
 
@@ -197,7 +197,7 @@ describe("triggers", function() {
           const tab = window.gBrowser.addWebTab("http://symantec.com");
           window.gBrowser.selectedTab = tab;
         `);
-        await driver.sleep(SETUP_DELAY * 5);
+        await driver.sleep(SETUP_DELAY * 10);
         await utils.isNotificationVisible(driver, false);
 
         await driver.executeScript(`
@@ -205,7 +205,7 @@ describe("triggers", function() {
           window.gBrowser.selectedTab = tab;
         `);
 
-        await driver.sleep(SETUP_DELAY * 5);
+        await driver.sleep(SETUP_DELAY * 10);
         await utils.isNotificationVisible(driver, false);
 
         await driver.executeScript(`

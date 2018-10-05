@@ -105,13 +105,12 @@ async function isNotificationVisible(driver, value = true) {
 }
 
 async function killNotification(driver) {
+  // kills the notification by forcing auto-dismiss
   driver.setContext(Context.CHROME);
   await driver.executeScript(`
-    const elem = window.document.getElementById("${PANEL_ID}");
-    if (elem) {
-      elem.remove();
-    }
-  `);
+      const tab = window.gBrowser.addWebTab("http://mozilla.org");
+      window.gBrowser.selectedTab = tab;
+    `);
 }
 
 module.exports = {
