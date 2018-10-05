@@ -61,15 +61,21 @@ function load(data) {
   document.getElementById("prim-button").addEventListener("click", primButtonClick);
 
   document.getElementById("right-info").addEventListener("click", infoClick);
+
+  document.getElementById("dont-show-checkbox").addEventListener("change", checkBoxChange);
 }
 
-function infoClick(e) {
+function checkBoxChange() {
+  const checkboxEle = document.getElementById("dont-show-checkbox");
+  self.port.emit("VpnRecommender::dontShowChange", {checked: checkboxEle.checked});
+}
+
+function infoClick() {
   self.port.emit("VpnRecommender::info");
 }
 
 function secButtonClick() {
-  const checkboxEle = document.getElementById("dont-show-checkbox");
-  sendAsyncMessage("VpnRecommender::dismiss", {dontShowChecked: checkboxEle.checked});
+  sendAsyncMessage("VpnRecommender::dismiss");
 }
 
 function primButtonClick() {

@@ -29,6 +29,14 @@ const DEBUG_MODE_PREF = PREF_BRANCH + ".debug_mode";
 const TEST_PREF = PREF_BRANCH + ".started";
 const VARIATION_PREF = PREF_BRANCH + ".variation";
 
+// triggers should match branch (variation) names
+const TRIGGERS = {
+  CAPTIVE_PORTAL: "captive-portal",
+  PRIVACY_HOSTNAME: "privacy-hostname",
+  STREAMING_HOSTNAME: "streaming-hostname",
+  CATCH_ALL: "catch-all",
+};
+
 const CATCH_ALL_TRIGGER_TIMER_OVERRIDE_PREF = PREF_BRANCH + ".test.catchAllTimerMins";
 
 const CP_SUCCESS_XHR_TIMEOUT = 3000;
@@ -45,7 +53,7 @@ const VPN_LANDING_PAGE_URL = "https://premium.firefox.com/vpn/";
 const VPN_LANDING_PAGE_DEFAULT_PARAMS = {
   "utm_source": "firefox-browser",
   "utm_medium": "firefox-browser",
-  "utm_campaign": "shield_vpn",
+  "utm_campaign": "shield_vpn_1",
 };
 
 const log = function(...args) {
@@ -77,8 +85,6 @@ this.vpnRecommender = class extends ExtensionAPI {
   getAPI(context) {
     const that = this;
 
-    console.log("context", context);
-
     const jsms = {}; // workaround for not being able to use jsms with moz:// urls
 
     Services.scriptloader.loadSubScript(context.extension.getURL("privileged/vpnRecommender/Doorhanger.jsm"), jsms);
@@ -92,8 +98,6 @@ this.vpnRecommender = class extends ExtensionAPI {
     this.EveryWindow = jsms.EveryWindow;
 
     this.addCleanUpFunction(() => {
-      that.Doorhanger.killAllNotifications();
-
       Cu.unload(context.extension.getURL("privileged/vpnRecommender/Doorhanger.jsm"));
       Cu.unload(context.extension.getURL("privileged/vpnRecommender/VpnRelatedHostnames.jsm"));
       Cu.unload(context.extension.getURL("privileged/vpnRecommender/RecentWindow.jsm"));
@@ -238,48 +242,28 @@ this.vpnRecommender = class extends ExtensionAPI {
   registerListeners() {
     log("registering listeners");
 
-    const variation = this.variation;
-
-    if (variation === "captive-portal") {
-      log("registering captive-portal detection");
-      this.registerCaptivePortalTrigger();
-    }
-
-    if (variation === "privacy-hostname") {
-      this.registerPrivacyHostnameTrigger();
-    }
-
-    if (variation === "control") { return; }
-
-    if (variation === "catch-all") {
-      this.registerCatchallTrigger();
-    }
-
-    if (variation === "streaming-hostname") {
-      this.registerStreamingHostnameTrigger();
-    }
+    this.registerCaptivePortalTrigger();
+    this.registerPrivacyHostnameTrigger();
+    this.registerCatchallTrigger();
+    this.registerStreamingHostnameTrigger();
   }
 
   registerCaptivePortalTrigger() {
     const that = this;
 
-    const cpObserver = {
-      observe(subject, topic, data) {
-        if (topic !== "captive-portal-login") return;
-        log("captive-portal-login");
-        that.waitForConnection().then((result) => {
-          if (result === "success") that.tryShowNotification();
-        });
-      },
+    const observer = () => {
+      that.waitForConnection().then((result) => {
+        if (result === "success") that.tryShowNotification(TRIGGERS.CAPTIVE_PORTAL);
+      });
     };
 
-    Services.obs.addObserver(cpObserver, "captive-portal-login");
+    Services.obs.addObserver(observer, "captive-portal-login");
     this.addCleanUpFunction(() => {
-      Services.obs.removeObserver(cpObserver, "captive-portal-login");
+      Services.obs.removeObserver(observer, "captive-portal-login");
     });
   }
 
-  registerHostnameTrigger(hostnameList) {
+  registerHostnameTrigger(hostnameList, trigger) {
     log("registering hostname trigger");
 
     const that = this;
@@ -307,7 +291,7 @@ this.vpnRecommender = class extends ExtensionAPI {
           };
 
           if (hostnameList.some(test_function)) {
-            that.tryShowNotification();
+            that.tryShowNotification(trigger);
           }
 
         } catch (e) {
@@ -316,34 +300,38 @@ this.vpnRecommender = class extends ExtensionAPI {
       },
     };
 
-
     const windowInit = (win) => {
       win.gBrowser.addProgressListener(progressListener);
     };
 
     const windowUninit = (win) => {
-      win.removeProgressListener(progressListener);
+      win.gBrowser.removeProgressListener(progressListener);
     };
 
-    this.EveryWindow.registerCallback("hostname-trigger", windowInit, windowUninit);
+    this.EveryWindow.registerCallback(trigger, windowInit, windowUninit);
+    this.addCleanUpFunction(() => {
+      that.EveryWindow.unregisterCallback(trigger);
+    });
   }
 
   registerPrivacyHostnameTrigger() {
-    this.registerHostnameTrigger(this.VpnRelatedHostnames.PRIVACY_PROVIDER_HOSTNAMES);
+    this.registerHostnameTrigger(this.VpnRelatedHostnames.PRIVACY_PROVIDER_HOSTNAMES,
+      TRIGGERS.PRIVACY_HOSTNAME);
   }
 
   registerCatchallTrigger() {
+    log("registering catch-all trigger");
     const that = this;
     setTimeout(() => {
-      that.tryShowNotification();
-    }, Preferences.get(
-      CATCH_ALL_TRIGGER_TIMER_OVERRIDE_PREF) * 60 * 1000 ||
+      that.tryShowNotification(TRIGGERS.CATCH_ALL);
+    }, Preferences.get(CATCH_ALL_TRIGGER_TIMER_OVERRIDE_PREF) * 60 * 1000 ||
       CATCH_ALL_TRIGGER_TIMER_MINUTES * 60 * 1000
     );
   }
 
   registerStreamingHostnameTrigger() {
-    this.registerHostnameTrigger(this.VpnRelatedHostnames.STREAMING_HOSTNAMES);
+    this.registerHostnameTrigger(this.VpnRelatedHostnames.STREAMING_HOSTNAMES,
+      TRIGGERS.STREAMING_HOSTNAME);
   }
 
   setTelemetryCallback(callback) {
@@ -356,13 +344,13 @@ this.vpnRecommender = class extends ExtensionAPI {
     }
   }
 
-  dontShowChecked(messageName) {
-    Preferences.set(DONT_SHOW_PREF, true);
+  dontShowChange(checked) {
+    Preferences.set(DONT_SHOW_PREF, checked);
+    this.notificationResultData.dontShowChecked = checked;
 
     this.telemetryCallback({
-      "message_type": "event",
-      "event": "dont-show-checked",
-      "message-name": messageName,
+      "message_type": "dont_show_change_event",
+      "checked": String(checked),
     });
   }
 
@@ -398,52 +386,140 @@ this.vpnRecommender = class extends ExtensionAPI {
 
     let eventName;
 
-    if (message.data && message.data.dontShowChecked) {
-      this.dontShowChecked(message.name);
-    }
-
     if (message.name === "VpnRecommender::action") {
       eventName = "action";
       this.openVpnPage();
+      this.concludeNotification("action");
     }
 
     if (message.name === "VpnRecommender::dismiss") {
       eventName = "dismiss";
+      this.concludeNotification("dismiss");
     }
 
     if (message.name === "VpnRecommender::info") {
       eventName = "info";
     }
 
-    if (message.name === "VpnRecommender::timeout") {
-      eventName = "timeout";
+    if (message.name === "VpnRecommender::autoDismiss") {
+      eventName = "auto-dismiss";
+      this.concludeNotification("auto-dismiss");
+      this.sendTelemetry({
+        "message_type": "auto_dismissal_event",
+        "reason": message.data.reason,
+      });
+    }
+
+    if (message.name === "VpnRecommender::dontShowChange") {
+      eventName = "dont-show-change";
+      this.dontShowChange(message.data.checked);
     }
 
     this.telemetryCallback({
       "message_type": "event",
       "event": eventName,
-      "dont-show-checked": String(message.data && message.data.dontShowChecked),
     });
   }
 
-  tryShowNotification() {
-    if (Date.now() - Number(Preferences.get(LAST_NOTIFICATION_PREF)) < TWENTY_FOUR_HOURS) {
+  getTriggerData(trigger, pref) {
+    const str_val = Preferences.get(pref);
+    if (!str_val) { // pref does not exist
+      return str_val;
+    }
+
+    const val = JSON.parse(str_val);
+    return val[trigger];
+  }
+
+  setTriggerData(trigger, pref, value) {
+    let str_val = Preferences.get(pref);
+    if (!str_val) {
+      str_val = "{}";
+    }
+
+    const obj_val = JSON.parse(str_val);
+    obj_val[trigger] = value;
+    Preferences.set(pref, JSON.stringify(obj_val));
+  }
+
+  tryShowNotification(trigger) {
+    const isShadow = (trigger !== this.variation);
+
+    this.sendTelemetry({
+      "message_type": "event",
+      "event": "trigger",
+      "trigger": trigger,
+      "is-shadow": String(isShadow),
+    });
+
+    if (Date.now() - Number(this.getTriggerData(trigger, LAST_NOTIFICATION_PREF)) < TWENTY_FOUR_HOURS) {
       log("less than 24 hours has passed since the last notification was shown");
       return;
     }
 
-    if (Preferences.get(DONT_SHOW_PREF)) return;
-
-    const notificationCount = Preferences.get(NOTIFICATION_COUNT_PREF) || 0;
+    const notificationCount = this.getTriggerData(trigger, NOTIFICATION_COUNT_PREF) || 0;
     if (notificationCount === MAX_NOTIFICATION_COUNT) return;
 
+    if (!this.RecentWindow.getMostRecentBrowserWindow()) {
+      return; // if all windows are private
+    }
+
+    // this condition ensures that the doorhanger is actually shown (not a shadow notification) only when the trigger and the branch match
+    if (!isShadow && !Preferences.get(DONT_SHOW_PREF)) {
+      this.showNotification();
+
+      this.notificationResultData = {
+        dontShowChecked: false,
+        notificationNumber: notificationCount + 1,
+        result: "unknown",
+      };
+
+      this.sendTelemetry({
+        "message_type": "event",
+        "event": "notification-delivered",
+        "number": String(notificationCount + 1),
+      });
+    }
+
+    this.setTriggerData(trigger, NOTIFICATION_COUNT_PREF, notificationCount + 1); // increment notification count
+    this.setTriggerData(trigger, LAST_NOTIFICATION_PREF, String(Date.now()));
+
+    this.sendTelemetry({
+      "message_type": "event",
+      "event": "shadow-notification",
+      "number": String(notificationCount + 1),
+      "trigger": trigger,
+      "is-shadow": String(isShadow),
+    });
+  }
+
+  reportNotificationResult() {
+    if (!this.notificationResultData) return;
+
+    const data = this.notificationResultData;
+
+    this.sendTelemetry({
+      "message_type": "notification_result",
+      "number": String(data.notificationNumber),
+      "dont-show-checked": String(data.dontShowChecked),
+      "result": data.result,
+    });
+
+    this.notificationResultData = undefined; // to be able to call this function multiple times safely
+  }
+
+  concludeNotification(result) {
+    this.notificationResultData.result = result;
+    this.reportNotificationResult();
+  }
+
+  showNotification() {
     const doorhanger = new this.Doorhanger(this.notificationActionCallback.bind(this), `${this.extensionUrl}privileged/vpnRecommender`);
-    const success = doorhanger.present({message: DOORHANGER_MESSAGES[this.variation]});
+    doorhanger.present({message: DOORHANGER_MESSAGES[this.variation]});
 
-    if (!success) return;
-
-    Preferences.set(NOTIFICATION_COUNT_PREF, notificationCount + 1); // increment notification count
-    Preferences.set(LAST_NOTIFICATION_PREF, String(Date.now()));
+    this.addCleanUpFunction(() => {
+      doorhanger.destruct();
+    });
   }
 
   addCleanUpFunction(func) {
@@ -451,11 +527,15 @@ this.vpnRecommender = class extends ExtensionAPI {
       this.cleanUpFunctions = [];
     }
 
-    this.cleanUpFunctions.push(func);
+    this.cleanUpFunctions.unshift(func); // the most recent function gets called first
   }
 
   cleanUp() {
     log("cleaning up VPN Recommender");
+
+    if (!this.cleanUpFunctions) {
+      return; // nothing to be done
+    }
 
     for (const f of this.cleanUpFunctions) {
       f();
