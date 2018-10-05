@@ -42,7 +42,7 @@ const CATCH_ALL_TRIGGER_TIMER_OVERRIDE_PREF = PREF_BRANCH + ".test.catchAllTimer
 const CP_SUCCESS_XHR_TIMEOUT = 3000;
 const CAPTIVE_PORTAL_URL = "http://detectportal.firefox.com/success.txt";
 const CP_SUCCESS_CHECK_INTERVAL = 10000;
-const CP_SUCCESS_MAX_CHECK_COUNT = 3;
+const CP_SUCCESS_MAX_CHECK_COUNT = 12;
 
 const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 
@@ -196,14 +196,15 @@ this.vpnRecommender = class extends ExtensionAPI {
       const ti = setInterval(async () => {
         const res = await checkConnection();
         if (res === "success") {
-          resolve("success");
+          resolve({success: true, tiCount});
           clearInterval(ti);
         }
         tiCount += 1;
 
         if (tiCount === CP_SUCCESS_MAX_CHECK_COUNT) {
           clearInterval(ti);
-          resolve("failure");
+
+          resolve({success: false, tiCount});
         }
 
       }, CP_SUCCESS_CHECK_INTERVAL);
@@ -252,9 +253,20 @@ this.vpnRecommender = class extends ExtensionAPI {
     const that = this;
 
     const observer = () => {
+      if (that._isWaitingForConnection) return; // only one connection check at a time
+
       that.waitForConnection().then((result) => {
-        if (result === "success") that.tryShowNotification(TRIGGERS.CAPTIVE_PORTAL);
+        that.sendTelemetry({
+          "message_type": "captive_portal_connection_check",
+          "success": String(result.success),
+          "time": String((result.tiCount + 1) * CP_SUCCESS_CHECK_INTERVAL),
+        });
+
+        if (result.success) that.tryShowNotification(TRIGGERS.CAPTIVE_PORTAL);
+        that._isWaitingForConnection = false;
       });
+
+      that._isWaitingForConnection = true;
     };
 
     Services.obs.addObserver(observer, "captive-portal-login");

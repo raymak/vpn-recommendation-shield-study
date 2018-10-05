@@ -15,6 +15,9 @@
     },
     {
       "$ref": "#/definitions/notification_result"
+    },
+    {
+      "$ref": "#/definitions/captive_portal_connection_check"
     }
   ],
   "definitions": {
@@ -124,6 +127,24 @@
       },
       "additionalProperties": false,
       "minProperties": 4
+    },
+    "captive_portal_connection_check": {
+      "properties": {
+        "message_type": {
+          "type": "string",
+          "enum": [
+            "captive_portal_connection_check"
+          ]
+        },
+        "success": {
+          "$ref": "#/definitions/strbool"
+        },
+        "time": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "minProperties": 3
     }
   }
 }
