@@ -5,6 +5,9 @@
 
 /* eslint-env node, mocha */
 
+// for unhandled promise rejection debugging
+process.on("unhandledRejection", r => console.error(r)); // eslint-disable-line no-console
+
 const utils = require("./utils");
 
 const SETUP_DELAY = process.env.DELAY ? parseInt(process.env.DELAY) : 500;

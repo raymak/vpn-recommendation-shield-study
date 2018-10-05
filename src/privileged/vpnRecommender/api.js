@@ -29,10 +29,20 @@ const DEBUG_MODE_PREF = PREF_BRANCH + ".debug_mode";
 const TEST_PREF = PREF_BRANCH + ".started";
 const VARIATION_PREF = PREF_BRANCH + ".variation";
 
+// triggers should match branch (variation) names
+const TRIGGERS = {
+  CAPTIVE_PORTAL: "captive-portal",
+  PRIVACY_HOSTNAME: "privacy-hostname",
+  STREAMING_HOSTNAME: "streaming-hostname",
+  CATCH_ALL: "catch-all",
+};
+
+const CATCH_ALL_TRIGGER_TIMER_OVERRIDE_PREF = PREF_BRANCH + ".test.catchAllTimerMins";
+
 const CP_SUCCESS_XHR_TIMEOUT = 3000;
 const CAPTIVE_PORTAL_URL = "http://detectportal.firefox.com/success.txt";
 const CP_SUCCESS_CHECK_INTERVAL = 10000;
-const CP_SUCCESS_MAX_CHECK_COUNT = 3;
+const CP_SUCCESS_MAX_CHECK_COUNT = 12;
 
 const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 
@@ -43,7 +53,7 @@ const VPN_LANDING_PAGE_URL = "https://premium.firefox.com/vpn/";
 const VPN_LANDING_PAGE_DEFAULT_PARAMS = {
   "utm_source": "firefox-browser",
   "utm_medium": "firefox-browser",
-  "utm_campaign": "shield_vpn",
+  "utm_campaign": "shield_vpn_1",
 };
 
 const log = function(...args) {
@@ -54,19 +64,19 @@ const log = function(...args) {
 const DOORHANGER_MESSAGES = {
   "captive-portal": {
     header: "It appears you are browsing on an unsecured wireless network.",
-    text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connect, no matter where you are.",
+    text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connection, no matter where you are.",
   },
   "privacy-hostname": {
     header: "Make Firefox even more secure with ProtonVPN.",
-    text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connect, no matter where you are.",
+    text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connection, no matter where you are.",
   },
   "streaming-hostname": {
     header: "Make Firefox even more secure with ProtonVPN.",
-    text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connect, no matter where you are.",
+    text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connection, no matter where you are.",
   },
   "catch-all": {
     header: "Make Firefox even more secure with ProtonVPN.",
-    text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connect, no matter where you are.",
+    text: "Firefox has teamed up with ProtonVPN to provide you with a private and secure internet connection, no matter where you are.",
   },
 };
 
@@ -75,26 +85,23 @@ this.vpnRecommender = class extends ExtensionAPI {
   getAPI(context) {
     const that = this;
 
-    console.log("context", context);
+    const jsms = {}; // workaround for not being able to use jsms with moz:// urls
 
-    this.jsms = {}; // workaround for not being able to use jsms with moz:// urls
+    Services.scriptloader.loadSubScript(context.extension.getURL("privileged/vpnRecommender/Doorhanger.jsm"), jsms);
+    Services.scriptloader.loadSubScript(context.extension.getURL("privileged/vpnRecommender/VpnRelatedHostnames.jsm"), jsms);
+    Services.scriptloader.loadSubScript(context.extension.getURL("privileged/vpnRecommender/RecentWindow.jsm"), jsms);
+    Services.scriptloader.loadSubScript(context.extension.getURL("privileged/vpnRecommender/EveryWindow.jsm"), jsms);
 
-    Services.scriptloader.loadSubScript(context.extension.getURL("privileged/vpnRecommender/Doorhanger.jsm"), this.jsms);
-    Services.scriptloader.loadSubScript(context.extension.getURL("privileged/vpnRecommender/VpnRelatedHostnames.jsm"), this.jsms);
-    Services.scriptloader.loadSubScript(context.extension.getURL("privileged/vpnRecommender/RecentWindow.jsm"), this.jsms);
-
-    this.Doorhanger = this.jsms.Doorhanger;
-    this.VpnRelatedHostnames = this.jsms.VpnRelatedHostnames;
-    this.RecentWindow = this.jsms.RecentWindow;
-
-    this.cleanUpFunctions = [];
+    this.Doorhanger = jsms.Doorhanger;
+    this.VpnRelatedHostnames = jsms.VpnRelatedHostnames;
+    this.RecentWindow = jsms.RecentWindow;
+    this.EveryWindow = jsms.EveryWindow;
 
     this.addCleanUpFunction(() => {
       Cu.unload(context.extension.getURL("privileged/vpnRecommender/Doorhanger.jsm"));
       Cu.unload(context.extension.getURL("privileged/vpnRecommender/VpnRelatedHostnames.jsm"));
       Cu.unload(context.extension.getURL("privileged/vpnRecommender/RecentWindow.jsm"));
-
-      that.killNotification();
+      Cu.unload(context.extension.getURL("privileged/vpnRecommender/EveryWindow.jsm"));
     });
 
     this.extensionUrl = context.extension.getURL();
@@ -113,10 +120,6 @@ this.vpnRecommender = class extends ExtensionAPI {
 
           start(variation, isFirstRun) {
             that.start(variation, isFirstRun);
-          },
-
-          getInternals() {
-            return that.getInternals();
           },
 
           onSendTelemetry: new EventManager(context, "vpnRecommender.onSendTelemetry", fire => {
@@ -193,14 +196,15 @@ this.vpnRecommender = class extends ExtensionAPI {
       const ti = setInterval(async () => {
         const res = await checkConnection();
         if (res === "success") {
-          resolve("success");
+          resolve({success: true, tiCount});
           clearInterval(ti);
         }
         tiCount += 1;
 
         if (tiCount === CP_SUCCESS_MAX_CHECK_COUNT) {
           clearInterval(ti);
-          resolve("failure");
+
+          resolve({success: false, tiCount});
         }
 
       }, CP_SUCCESS_CHECK_INTERVAL);
@@ -239,48 +243,39 @@ this.vpnRecommender = class extends ExtensionAPI {
   registerListeners() {
     log("registering listeners");
 
-    const variation = this.variation;
-
-    if (variation === "captive-portal") {
-      log("registering captive-portal detection");
-      this.registerCaptivePortalTrigger();
-    }
-
-    if (variation === "privacy-hostname") {
-      this.registerPrivacyHostnameTrigger();
-    }
-
-    if (variation === "control") { return; }
-
-    if (variation === "catch-all") {
-      this.registerCatchallTrigger();
-    }
-
-    if (variation === "streaming-hostname") {
-      this.registerStreamingHostnameTrigger();
-    }
+    this.registerCaptivePortalTrigger();
+    this.registerPrivacyHostnameTrigger();
+    this.registerCatchallTrigger();
+    this.registerStreamingHostnameTrigger();
   }
 
   registerCaptivePortalTrigger() {
     const that = this;
 
-    const cpObserver = {
-      observe(subject, topic, data) {
-        if (topic !== "captive-portal-login") return;
-        log("captive-portal-login");
-        that.waitForConnection().then((result) => {
-          if (result === "success") that.tryShowNotification();
+    const observer = () => {
+      if (that._isWaitingForConnection) return; // only one connection check at a time
+
+      that.waitForConnection().then((result) => {
+        that.sendTelemetry({
+          "message_type": "captive_portal_connection_check",
+          "success": String(result.success),
+          "time": String((result.tiCount + 1) * CP_SUCCESS_CHECK_INTERVAL),
         });
-      },
+
+        if (result.success) that.tryShowNotification(TRIGGERS.CAPTIVE_PORTAL);
+        that._isWaitingForConnection = false;
+      });
+
+      that._isWaitingForConnection = true;
     };
 
-    Services.obs.addObserver(cpObserver, "captive-portal-login");
+    Services.obs.addObserver(observer, "captive-portal-login");
     this.addCleanUpFunction(() => {
-      Services.obs.removeObserver(cpObserver, "captive-portal-login");
+      Services.obs.removeObserver(observer, "captive-portal-login");
     });
   }
 
-  registerHostnameTrigger(hostnameList) {
+  registerHostnameTrigger(hostnameList, trigger) {
     log("registering hostname trigger");
 
     const that = this;
@@ -308,7 +303,7 @@ this.vpnRecommender = class extends ExtensionAPI {
           };
 
           if (hostnameList.some(test_function)) {
-            that.tryShowNotification();
+            that.tryShowNotification(trigger);
           }
 
         } catch (e) {
@@ -317,88 +312,38 @@ this.vpnRecommender = class extends ExtensionAPI {
       },
     };
 
-    // current windows
-    const windowEnumerator = Services.wm.getEnumerator("navigator:browser");
-
-    while (windowEnumerator.hasMoreElements()) {
-      const window = windowEnumerator.getNext();
-
-      if (PrivateBrowsingUtils.isWindowPrivate(window)) continue; // ignore private windows
-
-      const winWeak = Cu.getWeakReference(window);
-
-      const onOpenWindow = function(e) {
-        winWeak.get().gBrowser.addProgressListener(progressListener);
-        winWeak.get().removeEventListener("load", onOpenWindow);
-        that.addCleanUpFunction(() => {
-          if (winWeak.get()) {
-            winWeak.get().gBrowser.removeProgressListener(progressListener);
-          }
-        });
-      };
-
-      if (winWeak.get().gBrowser) {
-        winWeak.get().gBrowser.addProgressListener(progressListener);
-        that.addCleanUpFunction(() => {
-          if (winWeak.get()) {
-            winWeak.get().gBrowser.removeProgressListener(progressListener);
-          }
-        });
-      } else {
-        winWeak.get().addEventListener("load", onOpenWindow, true);
-      }
-    }
-
-    // new windows
-    const windowListener = {
-      onWindowTitleChange() { },
-      onOpenWindow(xulWindow) {
-        // xulWindow is of type nsIXULWindow, we want an nsIDOMWindow
-        // see https://dxr.mozilla.org/mozilla-central/rev/53477d584130945864c4491632f88da437353356/browser/base/content/test/general/browser_fullscreen-window-open.js#316
-        // for how to change XUL into DOM
-        const window = xulWindow.QueryInterface(Ci.nsIInterfaceRequestor)
-          .getInterface(Ci.nsIDOMWindow);
-
-        if (PrivateBrowsingUtils.isWindowPrivate(window)) return; // ignore private windows
-
-        const winWeak = Cu.getWeakReference(window);
-
-        // we need to use a listener function so that it's injected
-        // once the window is loaded / ready
-        const onWindowOpen = () => {
-          winWeak.get().removeEventListener("load", onWindowOpen);
-
-          if (winWeak.get().document.documentElement.getAttribute("windowtype") !== "navigator:browser") return;
-
-          // add progress listener
-          winWeak.get().gBrowser.addProgressListener(progressListener);
-          that.addCleanUpFunction(() => {
-            if (winWeak.get()) {
-              winWeak.get().removeProgressListener(progressListener);
-            }
-          });
-        };
-
-        winWeak.get().addEventListener("load", onWindowOpen, true);
-      },
-      onCloseWindow() { },
+    const windowInit = (win) => {
+      win.gBrowser.addProgressListener(progressListener);
     };
-    Services.wm.addListener(windowListener);
+
+    const windowUninit = (win) => {
+      win.gBrowser.removeProgressListener(progressListener);
+    };
+
+    this.EveryWindow.registerCallback(trigger, windowInit, windowUninit);
+    this.addCleanUpFunction(() => {
+      that.EveryWindow.unregisterCallback(trigger);
+    });
   }
 
   registerPrivacyHostnameTrigger() {
-    this.registerHostnameTrigger(this.VpnRelatedHostnames.PRIVACY_PROVIDER_HOSTNAMES);
+    this.registerHostnameTrigger(this.VpnRelatedHostnames.PRIVACY_PROVIDER_HOSTNAMES,
+      TRIGGERS.PRIVACY_HOSTNAME);
   }
 
   registerCatchallTrigger() {
+    log("registering catch-all trigger");
     const that = this;
     setTimeout(() => {
-      that.tryShowNotification();
-    }, CATCH_ALL_TRIGGER_TIMER_MINUTES * 60 * 1000);
+      that.tryShowNotification(TRIGGERS.CATCH_ALL);
+    }, Preferences.get(CATCH_ALL_TRIGGER_TIMER_OVERRIDE_PREF) * 60 * 1000 ||
+      CATCH_ALL_TRIGGER_TIMER_MINUTES * 60 * 1000
+    );
   }
 
   registerStreamingHostnameTrigger() {
-    this.registerHostnameTrigger(this.VpnRelatedHostnames.STREAMING_HOSTNAMES);
+    this.registerHostnameTrigger(this.VpnRelatedHostnames.STREAMING_HOSTNAMES,
+      TRIGGERS.STREAMING_HOSTNAME);
   }
 
   setTelemetryCallback(callback) {
@@ -411,13 +356,13 @@ this.vpnRecommender = class extends ExtensionAPI {
     }
   }
 
-  dontShowChecked(messageName) {
-    Preferences.set(DONT_SHOW_PREF, true);
+  dontShowChange(checked) {
+    Preferences.set(DONT_SHOW_PREF, checked);
+    this.notificationResultData.dontShowChecked = checked;
 
     this.telemetryCallback({
-      "message_type": "event",
-      "event": "dont-show-checked",
-      "message-name": messageName,
+      "message_type": "dont_show_change_event",
+      "checked": String(checked),
     });
   }
 
@@ -453,72 +398,156 @@ this.vpnRecommender = class extends ExtensionAPI {
 
     let eventName;
 
-    if (message.data && message.data.dontShowChecked) {
-      this.dontShowChecked(message.name);
-    }
-
     if (message.name === "VpnRecommender::action") {
       eventName = "action";
       this.openVpnPage();
+      this.concludeNotification("action");
     }
 
     if (message.name === "VpnRecommender::dismiss") {
       eventName = "dismiss";
+      this.concludeNotification("dismiss");
     }
 
     if (message.name === "VpnRecommender::info") {
       eventName = "info";
     }
 
-    if (message.name === "VpnRecommender::timeout") {
-      eventName = "timeout";
+    if (message.name === "VpnRecommender::autoDismiss") {
+      eventName = "auto-dismiss";
+      this.concludeNotification("auto-dismiss");
+      this.sendTelemetry({
+        "message_type": "auto_dismissal_event",
+        "reason": message.data.reason,
+      });
+    }
+
+    if (message.name === "VpnRecommender::dontShowChange") {
+      eventName = "dont-show-change";
+      this.dontShowChange(message.data.checked);
     }
 
     this.telemetryCallback({
       "message_type": "event",
       "event": eventName,
-      "dont-show-checked": String(message.data && message.data.dontShowChecked),
     });
   }
 
-  tryShowNotification() {
-    if (Date.now() - Number(Preferences.get(LAST_NOTIFICATION_PREF)) < TWENTY_FOUR_HOURS) {
+  getTriggerData(trigger, pref) {
+    const str_val = Preferences.get(pref);
+    if (!str_val) { // pref does not exist
+      return str_val;
+    }
+
+    const val = JSON.parse(str_val);
+    return val[trigger];
+  }
+
+  setTriggerData(trigger, pref, value) {
+    let str_val = Preferences.get(pref);
+    if (!str_val) {
+      str_val = "{}";
+    }
+
+    const obj_val = JSON.parse(str_val);
+    obj_val[trigger] = value;
+    Preferences.set(pref, JSON.stringify(obj_val));
+  }
+
+  tryShowNotification(trigger) {
+    const isShadow = (trigger !== this.variation);
+
+    this.sendTelemetry({
+      "message_type": "event",
+      "event": "trigger",
+      "trigger": trigger,
+      "is-shadow": String(isShadow),
+    });
+
+    if (Date.now() - Number(this.getTriggerData(trigger, LAST_NOTIFICATION_PREF)) < TWENTY_FOUR_HOURS) {
       log("less than 24 hours has passed since the last notification was shown");
       return;
     }
 
-    if (Preferences.get(DONT_SHOW_PREF)) return;
-
-    const notificationCount = Preferences.get(NOTIFICATION_COUNT_PREF) || 0;
+    const notificationCount = this.getTriggerData(trigger, NOTIFICATION_COUNT_PREF) || 0;
     if (notificationCount === MAX_NOTIFICATION_COUNT) return;
 
+    if (!this.RecentWindow.getMostRecentBrowserWindow()) {
+      return; // if all windows are private
+    }
+
+    // this condition ensures that the doorhanger is actually shown (not a shadow notification) only when the trigger and the branch match
+    if (!isShadow && !Preferences.get(DONT_SHOW_PREF)) {
+      this.showNotification();
+
+      this.notificationResultData = {
+        dontShowChecked: false,
+        notificationNumber: notificationCount + 1,
+        result: "unknown",
+      };
+
+      this.sendTelemetry({
+        "message_type": "event",
+        "event": "notification-delivered",
+        "number": String(notificationCount + 1),
+      });
+    }
+
+    this.setTriggerData(trigger, NOTIFICATION_COUNT_PREF, notificationCount + 1); // increment notification count
+    this.setTriggerData(trigger, LAST_NOTIFICATION_PREF, String(Date.now()));
+
+    this.sendTelemetry({
+      "message_type": "event",
+      "event": "shadow-notification",
+      "number": String(notificationCount + 1),
+      "trigger": trigger,
+      "is-shadow": String(isShadow),
+    });
+  }
+
+  reportNotificationResult() {
+    if (!this.notificationResultData) return;
+
+    const data = this.notificationResultData;
+
+    this.sendTelemetry({
+      "message_type": "notification_result",
+      "number": String(data.notificationNumber),
+      "dont-show-checked": String(data.dontShowChecked),
+      "result": data.result,
+    });
+
+    this.notificationResultData = undefined; // to be able to call this function multiple times safely
+  }
+
+  concludeNotification(result) {
+    this.notificationResultData.result = result;
+    this.reportNotificationResult();
+  }
+
+  showNotification() {
     const doorhanger = new this.Doorhanger(this.notificationActionCallback.bind(this), `${this.extensionUrl}privileged/vpnRecommender`);
-    const success = doorhanger.present({message: DOORHANGER_MESSAGES[this.variation]});
+    doorhanger.present({message: DOORHANGER_MESSAGES[this.variation]});
 
-    if (!success) return;
-
-    Preferences.set(NOTIFICATION_COUNT_PREF, notificationCount + 1); // increment notification count
-    Preferences.set(LAST_NOTIFICATION_PREF, String(Date.now()));
+    this.addCleanUpFunction(() => {
+      doorhanger.destruct();
+    });
   }
 
   addCleanUpFunction(func) {
-    this.cleanUpFunctions.push(func);
-  }
-
-  killNotification() {
-    const windowEnumerator = Services.wm.getEnumerator("navigator:browser");
-
-    while (windowEnumerator.hasMoreElements()) {
-      const win = windowEnumerator.getNext();
-      const box = win.document.getElementById("vpn-recommender-doorhanger-panel");
-      if (box) {
-        box.remove();
-      }
+    if (!this.cleanUpFunctions) {
+      this.cleanUpFunctions = [];
     }
+
+    this.cleanUpFunctions.unshift(func); // the most recent function gets called first
   }
 
   cleanUp() {
     log("cleaning up VPN Recommender");
+
+    if (!this.cleanUpFunctions) {
+      return; // nothing to be done
+    }
 
     for (const f of this.cleanUpFunctions) {
       f();
@@ -529,9 +558,5 @@ this.vpnRecommender = class extends ExtensionAPI {
     Preferences.reset(NOTIFICATION_COUNT_PREF);
     Preferences.reset(LAST_NOTIFICATION_PREF);
     Preferences.reset(TEST_PREF);
-  }
-
-  getInternals() {
-    return {};
   }
 };

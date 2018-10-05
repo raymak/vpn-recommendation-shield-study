@@ -5,6 +5,10 @@
 
 /* eslint-env node, mocha */
 
+
+// for unhandled promise rejection debugging
+process.on("unhandledRejection", r => console.error(r)); // eslint-disable-line no-console
+
 // The geckodriver package downloads and installs geckodriver for us.
 // We use it by requiring it.
 require("geckodriver");
@@ -46,7 +50,9 @@ const FIREFOX_PREFERENCES = {
 const PANEL_ID = "vpn-recommender-doorhanger-panel";
 
 const PREF_BRANCH = "extensions.vpn-recommendation-study-1_shield_mozilla_org";
-const WIDGET_ID = "shield.vpn-recommendation-study-1_shield_mozilla_org";
+const WIDGET_ID = "vpn-recommendation-study-1_shield_mozilla_org";
+
+const CATCH_ALL_TRIGGER_TIMER_OVERRIDE_PREF = PREF_BRANCH + ".test.catchAllTimerMins";
 
 // Re-usable test methods from shield-studies-addon-utils
 const { executeJs } = require("shield-studies-addon-utils/testUtils/executeJs");
@@ -99,18 +105,18 @@ async function isNotificationVisible(driver, value = true) {
 }
 
 async function killNotification(driver) {
+  // kills the notification by forcing auto-dismiss
   driver.setContext(Context.CHROME);
   await driver.executeScript(`
-    const elem = window.document.getElementById("${PANEL_ID}");
-    if (elem) {
-      elem.remove();
-    }
-  `);
+      const tab = window.gBrowser.addWebTab("http://mozilla.org");
+      window.gBrowser.selectedTab = tab;
+    `);
 }
 
 module.exports = {
   FIREFOX_PREFERENCES,
   PREF_BRANCH,
+  CATCH_ALL_TRIGGER_TIMER_OVERRIDE_PREF,
   WIDGET_ID,
   setPreference,
   getPreference,
