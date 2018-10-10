@@ -1,7 +1,7 @@
 {
   "name": "VPN Recommendation Shield Study (bug 1478770)",
   "description": "This study extension recommends a VPN software solution to those users who it deems likely to benefit from it.",
-  "version": "0.3",
+  "version": "0.4",
   "manifest_version": 2,
   "applications": {
     "gecko": {

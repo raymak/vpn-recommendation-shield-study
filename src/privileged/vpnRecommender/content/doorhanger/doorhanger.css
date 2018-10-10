@@ -33,8 +33,7 @@ body.dark {
   background-size: contain;
 }
 
-@media (min--moz-device-pixel-ratio: 1.5),
-  (min-resolution: 1.5dppx) {
+@media (min-resolution: 1.5dppx) {
   #picture {
     background: url("../images/Doorhanger Hero@2x.png");
     background-size: contain;
