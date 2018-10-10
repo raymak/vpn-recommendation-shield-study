@@ -4,20 +4,6 @@
 		"description": "VPN Recommender Shield Study",
 		"functions": [
 			{
-				"name": "echo",
-				"type": "function",
-				"description": "Echoes the input string",
-				"async": true,
-				"parameters": [
-					{
-						"name": "str",
-						"type": "string",
-						"description": "echo this input"
-					}
-				]
-			},
-
-			{
 				"name": "start",
 				"type": "function",
 				"description": "starts the VPN recommender study feature",

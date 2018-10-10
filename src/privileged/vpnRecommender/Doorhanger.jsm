@@ -232,12 +232,14 @@ var Doorhanger  = class { // eslint-disable-line no-var
   cleanUp() {
     log("cleaning up doorhanger");
 
-    if (!this.cleanUpFunctions) {
-      return; // nothing to be done
-    }
+    if (this.cleanUpFunctions) {
+      for (const f of this.cleanUpFunctions) {
+        try {
+          f();
+        } catch (e) {
 
-    for (const f of this.cleanUpFunctions) {
-      f();
+        }
+      }
     }
   }
 

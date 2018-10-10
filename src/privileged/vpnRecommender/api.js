@@ -114,10 +114,6 @@ this.vpnRecommender = class extends ExtensionAPI {
     return {
       experiments: {
         vpnRecommender: {
-          echo(str) {
-            log(`echoing: ${str}`);
-          },
-
           start(variation, isFirstRun) {
             that.start(variation, isFirstRun);
           },
@@ -215,7 +211,6 @@ this.vpnRecommender = class extends ExtensionAPI {
 
   listenForAddonDisableOrUninstall(addonId) {
     let handleDisableOrUninstall;
-    const that = this;
 
     const listener = {
       onUninstalling(addon) {
@@ -233,7 +228,7 @@ this.vpnRecommender = class extends ExtensionAPI {
 
       AddonManager.removeAddonListener(listener);
 
-      that.cleanUp();
+      this.cleanUp();
       addon.uninstall();
     };
 
@@ -270,7 +265,7 @@ this.vpnRecommender = class extends ExtensionAPI {
     };
 
     Services.obs.addObserver(observer, "captive-portal-login");
-    this.addCleanUpFunction(() => {
+    that.addCleanUpFunction(() => {
       Services.obs.removeObserver(observer, "captive-portal-login");
     });
   }
@@ -296,10 +291,7 @@ this.vpnRecommender = class extends ExtensionAPI {
           const hostname = uri.host;
 
           const test_function = (ref_hostname) => {
-            const escaped_ref_hostname = ref_hostname.replace(".", "\\.").replace("-", "\\-");
-            const rx = new RegExp("^(.+\\.)*(" + escaped_ref_hostname + ")$");
-
-            return rx.test(hostname);
+            return Services.eTLD.hasRootDomain(hostname, ref_hostname);
           };
 
           if (hostnameList.some(test_function)) {
@@ -322,7 +314,7 @@ this.vpnRecommender = class extends ExtensionAPI {
 
     this.EveryWindow.registerCallback(trigger, windowInit, windowUninit);
     this.addCleanUpFunction(() => {
-      that.EveryWindow.unregisterCallback(trigger);
+      this.EveryWindow.unregisterCallback(trigger);
     });
   }
 
@@ -333,9 +325,8 @@ this.vpnRecommender = class extends ExtensionAPI {
 
   registerCatchallTrigger() {
     log("registering catch-all trigger");
-    const that = this;
     setTimeout(() => {
-      that.tryShowNotification(TRIGGERS.CATCH_ALL);
+      this.tryShowNotification(TRIGGERS.CATCH_ALL);
     }, Preferences.get(CATCH_ALL_TRIGGER_TIMER_OVERRIDE_PREF) * 60 * 1000 ||
       CATCH_ALL_TRIGGER_TIMER_MINUTES * 60 * 1000
     );
@@ -545,12 +536,14 @@ this.vpnRecommender = class extends ExtensionAPI {
   cleanUp() {
     log("cleaning up VPN Recommender");
 
-    if (!this.cleanUpFunctions) {
-      return; // nothing to be done
-    }
+    if (this.cleanUpFunctions) {
+      for (const f of this.cleanUpFunctions) {
+        try {
+          f();
+        } catch (e) {
 
-    for (const f of this.cleanUpFunctions) {
-      f();
+        }
+      }
     }
 
     // clean up prefs
