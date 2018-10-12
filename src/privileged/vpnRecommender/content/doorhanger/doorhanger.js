@@ -36,6 +36,8 @@ self.port.on("VpnRecommender::load", (data) => {
 function load(data) {
   document = content.document; // eslint-disable-line no-global-assign, no-native-reassign
 
+  console.log("populating doorhanger");
+
   if (data.isDarkMode) {
     document.body.classList.add("dark");
   }
@@ -60,7 +62,7 @@ function load(data) {
   document.getElementById("sec-button").addEventListener("click", secButtonClick);
   document.getElementById("prim-button").addEventListener("click", primButtonClick);
 
-  document.getElementById("right-info").addEventListener("click", infoClick);
+  document.getElementsByClassName("info-hover-area")[0].addEventListener("click", infoClick);
 
   document.getElementById("dont-show-checkbox").addEventListener("change", checkBoxChange);
 }
@@ -81,5 +83,3 @@ function secButtonClick() {
 function primButtonClick() {
   self.port.emit("VpnRecommender::action");
 }
-
-self.port.emit("VpnRecommender::panel-ready");

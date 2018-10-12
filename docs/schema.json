@@ -79,6 +79,8 @@
           "enum": [
             "new-window",
             "new-tab",
+            "tab-select",
+            "window-select",
             "burger-menu"
           ]
         }
