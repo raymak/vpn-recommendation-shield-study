@@ -49,7 +49,8 @@ const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 const CATCH_ALL_TRIGGER_TIMER_MINUTES = 10;
 const MAX_NOTIFICATION_COUNT = 3;
 
-const VPN_LANDING_PAGE_URL = "https://premium.firefox.com/vpn/";
+const VPN_LANDING_PAGE_URL = "https://dev.psvpn.nonprod.cloudops.mozgcp.net/";
+const VPN_SUPPORT_URL = "https://support.mozilla.org/en-US/kb/protonvpn";
 const VPN_LANDING_PAGE_DEFAULT_PARAMS = {
   "utm_source": "firefox-browser",
   "utm_medium": "firefox-browser",
@@ -518,7 +519,21 @@ this.vpnRecommender = class extends ExtensionAPI {
 
   showNotification() {
     const doorhanger = new this.Doorhanger(this.notificationActionCallback.bind(this), `${this.extensionUrl}privileged/vpnRecommender`);
-    doorhanger.present({message: DOORHANGER_MESSAGES[this.variation]});
+
+    const options = {
+      infoUrl: VPN_SUPPORT_URL,
+      hideOnWindowSelect: false,
+      hideOnWindowOpen: true,
+      hideOnTabSelect: false,
+      hideOnTabOpen: true,
+    };
+
+    // if (this.variation === TRIGGERS.STREAMING_HOSTNAME || this.variation === TRIGGERS.PRIVACY_HOSTNAME) {
+    //   options.hideOnWindowSelect = true;
+    //   options.hideOnTabSelect = true;
+    // }
+
+    doorhanger.present({message: DOORHANGER_MESSAGES[this.variation]}, options);
 
     this.addCleanUpFunction(() => {
       doorhanger.destruct();

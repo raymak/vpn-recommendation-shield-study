@@ -9,9 +9,9 @@
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-ChromeUtils.defineModuleGetter(this, "Preferences", "resource://gre/modules/Preferences.jsm");
+ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
-const DOORHANGER_MAC_SIZE = {width: 280, height: 403};
+const DOORHANGER_MAC_SIZE = {width: 280, height: 404};
 const DOORHANGER_NON_MAC_SIZE = {width: 282, height: 406};
 
 const PREF_BRANCH = "extensions.vpn-recommendation-study-1_shield_mozilla_org";
@@ -63,13 +63,19 @@ var Doorhanger  = class { // eslint-disable-line no-var
     });
   }
 
-  present(data) {
+  present(data, options = {
+    hideOnWindowSelect: false,
+    hideOnTabSelect: false,
+    hideOnWindowOpen: true,
+    hideOnTabOpen: true,
+    infoUrl: null,
+  }) {
     log("presenting doorhanger");
 
-    this.show(this.getMostRecentBrowserWindow(), data);
+    this.show(this.getMostRecentBrowserWindow(), data, options);
   }
 
-  show(win, data) {
+  show(win, data, options = {}) {
     panel = win.document.getElementById("vpn-recommender-doorhanger-panel");
 
     const popAnchor = this.determineAnchorElement(win);
@@ -96,6 +102,7 @@ var Doorhanger  = class { // eslint-disable-line no-var
     embeddedBrowser.setAttribute("type", "content");
     embeddedBrowser.setAttribute("disableglobalhistory", "true");
     embeddedBrowser.setAttribute("flex", "1");
+    embeddedBrowser.setAttribute("tooltip", "aHTMLTooltip");
 
     panel.appendChild(embeddedBrowser);
     win.document.getElementById("mainPopupSet").appendChild(panel);
@@ -105,7 +112,9 @@ var Doorhanger  = class { // eslint-disable-line no-var
     panelContent.style.padding = "0px";
     panelContent.style.height = `${panelSize.height}px`;
     panelContent.style.width = `${panelSize.width}px`;
-    panelContent.style.margin = "1px 0px 0px 0px";
+    if (Services.appinfo.OS === "Darwin") {
+      panelContent.style.margin = "1px 0 0 0";
+    }
 
     // seems that messageManager only available when browser is attached
     embeddedBrowser.messageManager.loadFrameScript(this.frame_script_url, false);
@@ -118,7 +127,9 @@ var Doorhanger  = class { // eslint-disable-line no-var
 
     embeddedBrowser.messageManager.sendAsyncMessage("VpnRecommender::load", { ...data, isDarkMode: this.isDarkMode(win) });
 
-    this.registerAutoDismissalListeners(win);
+    this.infoUrl = options.infoUrl;
+
+    this.registerAutoDismissalListeners(win, options);
   }
 
   autoDismiss(reason) {
@@ -131,12 +142,10 @@ var Doorhanger  = class { // eslint-disable-line no-var
     this.messageListenerCallback(message);
   }
 
-  registerAutoDismissalListeners(panelParentWindow) {
-    const that = this;
-
+  registerAutoDismissalListeners(panelParentWindow, options) {
     // burger button
     const onBurgerOpen = () => {
-      that.autoDismiss("burger-menu");
+      this.autoDismiss("burger-menu");
     };
 
     const weakBurgerButton = Cu.getWeakReference(panelParentWindow.document.getElementById("PanelUI-menu-button"));
@@ -148,34 +157,54 @@ var Doorhanger  = class { // eslint-disable-line no-var
       }
     });
 
-    // new windows
-    const onWindowOpened = () => {
-      that.autoDismiss("new-window");
+    // windows
+    const onWindowOpen = () => {
+      if (!options.hideOnWindowOpen) return;
+      this.autoDismiss("new-window");
     };
 
-    Services.obs.addObserver(onWindowOpened,
+    const onWindowSelect = () => {
+      if (!options.hideOnWindowSelect) return;
+      this.autoDismiss("window-select");
+    };
+
+    Services.obs.addObserver(onWindowOpen,
       "browser-delayed-startup-finished");
 
+    Services.obs.addObserver(onWindowSelect,
+      "xul-window-visible");
+
     this.addCleanUpFunction(() => {
-      Services.obs.removeObserver(onWindowOpened, "browser-delayed-startup-finished");
+      Services.obs.removeObserver(onWindowOpen, "browser-delayed-startup-finished");
+      Services.obs.removeObserver(onWindowSelect, "xul-window-visible");
     });
 
-    // new tabs
-    const onTabOpened = () => {
-      that.autoDismiss("new-tab");
+    // tabs
+    const onTabOpen = () => {
+      if (!options.hideOnTabOpen || this._tabAutoDimissalOff) return;
+
+      this.autoDismiss("new-tab");
+    };
+
+    const onTabSelect = () => {
+      if (!options.hideOnTabSelect || this._tabAutoDimissalOff) return;
+
+      this.autoDismiss("tab-select");
     };
 
     const windowInit = (win) => {
-      win.gBrowser.tabContainer.addEventListener("TabOpen", onTabOpened);
+      win.gBrowser.tabContainer.addEventListener("TabOpen", onTabOpen);
+      win.gBrowser.tabContainer.addEventListener("TabSelect", onTabSelect);
     };
 
     const windowUninit = (win) => {
-      win.gBrowser.tabContainer.removeEventListener("TabOpen", onTabOpened);
+      win.gBrowser.tabContainer.removeEventListener("TabOpen", onTabOpen);
+      win.gBrowser.tabContainer.removeEventListener("TabSelect", onTabSelect);
     };
 
     this.EveryWindow.registerCallback("doorhanger-auto-dismissal-listener", windowInit, windowUninit);
     this.addCleanUpFunction(() => {
-      that.EveryWindow.unregisterCallback("doorhanger-auto-dismissal-listener");
+      this.EveryWindow.unregisterCallback("doorhanger-auto-dismissal-listener");
     });
   }
 
@@ -196,6 +225,15 @@ var Doorhanger  = class { // eslint-disable-line no-var
     const popAnchor = win.document.getAnonymousElementByAttribute(burgerButton, "class", "toolbarbutton-icon");
 
     return popAnchor;
+  }
+
+  openInfoPage() {
+    // temporarily turn off autodismissal for tabs to give enough time for the tab to open
+    this._tabAutoDimissalOff = true;
+    const win = this.RecentWindow.getMostRecentBrowserWindow();
+    const tab = win.gBrowser.addWebTab(this.infoUrl);
+    win.gBrowser.selectedTab = tab;
+    this._tabAutoDimissalOff = false;
   }
 
   killAllNotifications() {
@@ -256,6 +294,11 @@ var Doorhanger  = class { // eslint-disable-line no-var
         break;
 
       case "VpnRecommender::info":
+        if (this.infoUrl) {
+          // if the url of the info page is given as an option, open it here, otherwise let the host
+          // module handle it
+          this.openInfoPage();
+        }
         this.messageListenerCallback(message);
         break;
 
