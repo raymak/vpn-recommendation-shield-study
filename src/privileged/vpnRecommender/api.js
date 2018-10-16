@@ -528,10 +528,10 @@ this.vpnRecommender = class extends ExtensionAPI {
       hideOnTabOpen: true,
     };
 
-    // if (this.variation === TRIGGERS.STREAMING_HOSTNAME || this.variation === TRIGGERS.PRIVACY_HOSTNAME) {
-    //   options.hideOnWindowSelect = true;
-    //   options.hideOnTabSelect = true;
-    // }
+    if (this.variation === TRIGGERS.STREAMING_HOSTNAME || this.variation === TRIGGERS.PRIVACY_HOSTNAME) {
+      options.hideOnWindowSelect = true;
+      options.hideOnTabSelect = true;
+    }
 
     doorhanger.present({message: DOORHANGER_MESSAGES[this.variation]}, options);
 
