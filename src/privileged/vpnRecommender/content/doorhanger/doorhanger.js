@@ -30,7 +30,7 @@ const self = {
 };
 
 self.port.on("VpnRecommender::load", (data) => {
-  content.addEventListener("load", () => load(data));
+  addEventListener("DOMContentLoaded", () => load(data));
 });
 
 function load(data) {

@@ -1,6 +1,6 @@
 {
   "name": "shield-vpn-recommendation-study",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Firefox Shield study that recommends installing VPN software to those users who may benefit from it.",
   "directories": {
     "test": "test",
@@ -17,7 +17,7 @@
     "start": "web-ext run --no-reload",
     "watch": "web-ext run",
     "build": "web-ext build",
-    "test:func": "FIREFOX_BINARY=${FIREFOX_BINARY} ADDON_ZIP=./dist/vpn_recommendation_shield_study_bug_1478770_-0.5.zip mocha test/functional/",
+    "test:func": "FIREFOX_BINARY=${FIREFOX_BINARY} ADDON_ZIP=./dist/vpn_recommendation_shield_study_bug_1478770_-0.6.zip mocha test/functional/",
     "branch:captive-portal": "npm run start -- --pref=$npm_package_pref_branch=captive-portal",
     "branch:catch-all": "npm run start -- --pref=$npm_package_pref_branch=catch-all",
     "branch:control": "npm run start -- --pref=$npm_package_pref_branch=control",
