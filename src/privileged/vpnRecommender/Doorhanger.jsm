@@ -21,6 +21,8 @@ const SELECTED_LWT_THEME_ID = "lightweightThemes.selectedThemeID";
 const DEFAULT_THEME_ID = "default-theme@mozilla.org";
 const COMPACT_DARK_ID = "firefox-compact-dark@mozilla.org";
 
+const WINDOW_STATE_NORMAL = 3;
+
 const log = function(...args) {
   if (!Preferences.get(DEBUG_MODE_PREF)) return;
   console.log(...args);
@@ -130,6 +132,23 @@ var Doorhanger  = class { // eslint-disable-line no-var
     this.infoUrl = options.infoUrl;
 
     this.registerAutoDismissalListeners(win, options);
+
+    // workaround for https://github.com/raymak/vpn-recommendation-shield-study/issues/70
+    const weakWin = Cu.getWeakReference(win);
+
+    const onWindowModeChange = (e) => {
+      if (e.target.windowState !== WINDOW_STATE_NORMAL) return;
+      if (panel && panel.state === "closed") {
+        panel.openPopup(this.determineAnchorElement(e.target), "", 0, 0, false, false);
+      }
+    };
+
+    weakWin.get().addEventListener("sizemodechange", onWindowModeChange);
+    this.addCleanUpFunction(() => {
+      if (weakWin.get()) {
+        weakWin.get().removeEventListener("sizemodechange", onWindowModeChange);
+      }
+    });
   }
 
   autoDismiss(reason) {
@@ -237,6 +256,7 @@ var Doorhanger  = class { // eslint-disable-line no-var
   }
 
   killAllNotifications() {
+    panel = null;
     const windowEnumerator = Services.wm.getEnumerator("navigator:browser");
 
     log("killing notifications");
