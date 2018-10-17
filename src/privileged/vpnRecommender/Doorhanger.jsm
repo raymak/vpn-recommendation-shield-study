@@ -289,6 +289,7 @@ var Doorhanger  = class { // eslint-disable-line no-var
         break;
 
       case "VpnRecommender::action":
+        this._tabAutoDimissalOff = true;
         this.destruct();
         this.messageListenerCallback(message);
         break;
