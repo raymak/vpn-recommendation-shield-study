@@ -10,8 +10,8 @@
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
-const DOORHANGER_MAC_SIZE = {width: 280, height: 404};
-const DOORHANGER_NON_MAC_SIZE = {width: 282, height: 406};
+const DOORHANGER_MAC_SIZE = {width: 280, height: 398};
+const DOORHANGER_NON_MAC_SIZE = {width: 282, height: 400};
 
 const PREF_BRANCH = "extensions.vpn-recommendation-study-1_shield_mozilla_org";
 const DEBUG_MODE_PREF = PREF_BRANCH + ".debug_mode";

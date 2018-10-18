@@ -148,8 +148,6 @@ body.dark {
 
 #dontshow-container {
   display: flex;
-  justify-content: left;
-  align-items: center;
   width: 100%;
   padding: 0 0 20px 20px;
 }
@@ -157,14 +155,12 @@ body.dark {
 #dontshow {
   font-size: 13px;
   display: flex;
-  align-items: center;
 }
 
 #dont-show-checkbox {
   width: 16px;
   height: 16px;
-  margin-left: 0;
-  margin-right: 0;
+  margin: 0;
   padding: 0;
 }
 
@@ -186,7 +182,6 @@ body.dark {
   background-color: #ebebeb;
   color: black;
   border-color: transparent;
-  text-align: center;
   box-shadow: 0 1px 0 #d4d4d4 inset;
   width: 50%;
 }
