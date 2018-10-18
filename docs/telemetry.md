@@ -33,7 +33,7 @@ This section describes the different types of messages that are sent in the ```a
 
 Message sent for every event. The events are described as below:
 
-- ```trigger```: the user hit one of the study triggers.
+- ```trigger```: the user hit one of the study triggers. Per [this issue](https://github.com/raymak/vpn-recommendation-shield-study/issues/75) it does not include ```privacy-hostname``` and ```streaming-hostname```.
 - ```notification-delivered```: an actual notification was delivered. 
 - ```study-start```: the study started.
 - ```shadow-notification```: a shadow notification was delivered. This is not an actual notification that the user sees, since the trigger for this notification could be different from the trigger of the study branch.
@@ -49,7 +49,7 @@ The following examples demonstrate the fields that are available in each of the 
 {
 	"message_type": "event",
 	"event": "trigger",
-	"trigger": "streaming-hostname", //one of 'catch-all', 'captive-portal', 'streaming-hostname', 'privacy-hostname'
+	"trigger": "captive-portal", // one of 'catch-all', 'captive-portal', other triggers are ignored per https://github.com/raymak/vpn-recommendation-shield-study/issues/75
 	"is-shadow": "true" // shows whether this was a shadow trigger (not matching the study branch)
 }
 ````
