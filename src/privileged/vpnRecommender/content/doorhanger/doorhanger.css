@@ -166,6 +166,8 @@ body.dark {
 
 #checkbox-label {
   margin-left: 6px;
+  height: 16px;
+  line-height: 15px;
 }
 
 .button-style:hover {
