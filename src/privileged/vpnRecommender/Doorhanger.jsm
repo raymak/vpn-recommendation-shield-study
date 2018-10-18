@@ -188,17 +188,17 @@ var Doorhanger  = class { // eslint-disable-line no-var
   }
 
   registerAutoDismissalListeners(panelParentWindow, options) {
-    // burger button
+    // burger panel
     const onBurgerOpen = () => {
       this.autoDismiss("burger-menu");
     };
 
-    const weakBurgerButton = Cu.getWeakReference(panelParentWindow.document.getElementById("PanelUI-menu-button"));
-    weakBurgerButton.get().addEventListener("click", onBurgerOpen);
+    const weakBurgerPanel = Cu.getWeakReference(panelParentWindow.document.getElementById("appMenu-popup"));
+    weakBurgerPanel.get().addEventListener("popupshowing", onBurgerOpen);
 
     this.addCleanUpFunction(() => {
-      if (weakBurgerButton.get()) {
-        weakBurgerButton.get().removeEventListener("click", onBurgerOpen);
+      if (weakBurgerPanel.get()) {
+        weakBurgerPanel.get().removeEventListener("popupshowing", onBurgerOpen);
       }
     });
 
