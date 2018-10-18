@@ -173,7 +173,7 @@ var Doorhanger  = class { // eslint-disable-line no-var
     const initial = element.style.display;
     win.setTimeout(() => {
       element.style.display = initial;
-    }, 100);
+    }, 50);
     element.style.display = "none";
   }
 
