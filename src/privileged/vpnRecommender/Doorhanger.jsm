@@ -8,7 +8,6 @@
 "use strict";
 
 ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 ChromeUtils.import("resource://gre/modules/Preferences.jsm");
 
 const DOORHANGER_MAC_SIZE = {width: 280, height: 404};
@@ -150,7 +149,7 @@ var Doorhanger  = class { // eslint-disable-line no-var
         }
         if (Services.appinfo.OS === "WINNT") {
           const browser = e.target.document.getElementById(BROWSER_ID);
-          this.forceRedraw(browser);
+          this.forceRedraw(browser, e.target);
         }
       }
       if (e.target.windowState === WINDOW_STATE_FULLSCREEN ||
@@ -170,10 +169,12 @@ var Doorhanger  = class { // eslint-disable-line no-var
     });
   }
 
-  forceRedraw(element) {
+  forceRedraw(element, win) {
     const initial = element.style.display;
+    win.setTimeout(() => {
+      element.style.display = initial;
+    }, 100);
     element.style.display = "none";
-    element.style.display = initial;
   }
 
   autoDismiss(reason) {
