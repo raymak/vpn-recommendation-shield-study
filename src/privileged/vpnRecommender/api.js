@@ -449,12 +449,15 @@ this.vpnRecommender = class extends ExtensionAPI {
   tryShowNotification(trigger) {
     const isShadow = (trigger !== this.variation);
 
-    this.sendTelemetry({
-      "message_type": "event",
-      "event": "trigger",
-      "trigger": trigger,
-      "is-shadow": String(isShadow),
-    });
+    // to reduce unnecessary data collection, hostname-based triggers are not reported
+    if (trigger === TRIGGERS.CAPTIVE_PORTAL || trigger === TRIGGERS.CATCH_ALL) {
+      this.sendTelemetry({
+        "message_type": "event",
+        "event": "trigger",
+        "trigger": trigger,
+        "is-shadow": String(isShadow),
+      });
+    }
 
     if (Date.now() - Number(this.getTriggerData(trigger, LAST_NOTIFICATION_PREF)) < TWENTY_FOUR_HOURS) {
       log("less than 24 hours has passed since the last notification was shown");

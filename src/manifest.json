@@ -1,7 +1,7 @@
 {
-  "name": "VPN Recommendation Shield Study (bug 1478770)",
-  "description": "This study extension recommends a VPN software solution to those users who it deems likely to benefit from it.",
-  "version": "0.6",
+  "name": "Firefox VPN study",
+  "description": "A Mozilla Firefox Shield study created to measure interest in a Firefox-approved VPN service.",
+  "version": "0.7",
   "manifest_version": 2,
   "applications": {
     "gecko": {
