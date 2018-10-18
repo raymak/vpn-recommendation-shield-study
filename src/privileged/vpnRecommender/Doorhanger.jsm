@@ -21,7 +21,12 @@ const SELECTED_LWT_THEME_ID = "lightweightThemes.selectedThemeID";
 const DEFAULT_THEME_ID = "default-theme@mozilla.org";
 const COMPACT_DARK_ID = "firefox-compact-dark@mozilla.org";
 
+const BROWSER_ID = "vpn-recommender-doorhanger";
+const PANEL_ID = "vpn-recommender-doorhanger-panel";
+
+const WINDOW_STATE_MAXIMIZED = 1;
 const WINDOW_STATE_NORMAL = 3;
+const WINDOW_STATE_FULLSCREEN = 4;
 
 const log = function(...args) {
   if (!Preferences.get(DEBUG_MODE_PREF)) return;
@@ -78,7 +83,7 @@ var Doorhanger  = class { // eslint-disable-line no-var
   }
 
   show(win, data, options = {}) {
-    panel = win.document.getElementById("vpn-recommender-doorhanger-panel");
+    panel = win.document.getElementById(PANEL_ID);
 
     const popAnchor = this.determineAnchorElement(win);
 
@@ -87,7 +92,7 @@ var Doorhanger  = class { // eslint-disable-line no-var
     }
 
     panel = win.document.createElement("panel");
-    panel.setAttribute("id", "vpn-recommender-doorhanger-panel");
+    panel.setAttribute("id", PANEL_ID);
     panel.setAttribute("class", "no-padding-panel");
     panel.setAttribute("type", "arrow");
     panel.setAttribute("noautofocus", true);
@@ -99,7 +104,7 @@ var Doorhanger  = class { // eslint-disable-line no-var
     const panelSize = Services.appinfo.OS === "Darwin" ? DOORHANGER_MAC_SIZE : DOORHANGER_NON_MAC_SIZE;
 
     const embeddedBrowser = win.document.createElement("browser");
-    embeddedBrowser.setAttribute("id", "vpn-recommender-doorhanger");
+    embeddedBrowser.setAttribute("id", BROWSER_ID);
     embeddedBrowser.setAttribute("src", `${this.contentURL}/doorhanger/doorhanger.html`);
     embeddedBrowser.setAttribute("type", "content");
     embeddedBrowser.setAttribute("disableglobalhistory", "true");
@@ -134,12 +139,26 @@ var Doorhanger  = class { // eslint-disable-line no-var
     this.registerAutoDismissalListeners(win, options);
 
     // workaround for https://github.com/raymak/vpn-recommendation-shield-study/issues/70
+    // and https://github.com/raymak/vpn-recommendation-shield-study/issues/73
     const weakWin = Cu.getWeakReference(win);
 
     const onWindowModeChange = (e) => {
-      if (e.target.windowState !== WINDOW_STATE_NORMAL) return;
-      if (panel && panel.state === "closed") {
-        panel.openPopup(this.determineAnchorElement(e.target), "", 0, 0, false, false);
+      if (e.target.windowState === WINDOW_STATE_NORMAL) {
+        if (panel && panel.state === "closed") {
+          panel.openPopup(this.determineAnchorElement(e.target), "", 0, 0, false, false);
+          return; // no need for redraw in this case
+        }
+        if (Services.appinfo.OS === "WINNT") {
+          const browser = e.target.document.getElementById(BROWSER_ID);
+          this.forceRedraw(browser);
+        }
+      }
+      if (e.target.windowState === WINDOW_STATE_FULLSCREEN ||
+        e.target.windowState === WINDOW_STATE_MAXIMIZED) {
+        if (Services.appinfo.OS === "WINNT") {
+          const browser = e.target.document.getElementById(BROWSER_ID);
+          this.forceRedraw(browser);
+        }
       }
     };
 
@@ -149,6 +168,12 @@ var Doorhanger  = class { // eslint-disable-line no-var
         weakWin.get().removeEventListener("sizemodechange", onWindowModeChange);
       }
     });
+  }
+
+  forceRedraw(element) {
+    const initial = element.style.display;
+    element.style.display = "none";
+    element.style.display = initial;
   }
 
   autoDismiss(reason) {
@@ -263,7 +288,7 @@ var Doorhanger  = class { // eslint-disable-line no-var
 
     while (windowEnumerator.hasMoreElements()) {
       const win = windowEnumerator.getNext();
-      const box = win.document.getElementById("vpn-recommender-doorhanger-panel");
+      const box = win.document.getElementById(PANEL_ID);
       if (box) {
         box.remove();
       }
