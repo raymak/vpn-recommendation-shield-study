@@ -58,7 +58,7 @@ jobs:
 
       - run:
           name: Build add-on
-          command: npm run build && ls -lh dist/*.zip && unzip -vl dist/vpn_recommendation_shield_study_*.zip | grep -v "/$"
+          command: npm run build && ls -lh dist/*.zip && unzip -vl dist/firefox_vpn_study*.zip | grep -v "/$"
 
       - store_artifacts:
           path: "dist"
