@@ -156,7 +156,7 @@ var Doorhanger  = class { // eslint-disable-line no-var
         e.target.windowState === WINDOW_STATE_MAXIMIZED) {
         if (Services.appinfo.OS === "WINNT") {
           const browser = e.target.document.getElementById(BROWSER_ID);
-          this.forceRedraw(browser);
+          this.forceRedraw(browser, e.target);
         }
       }
     };
