@@ -131,7 +131,9 @@ var Doorhanger  = class { // eslint-disable-line no-var
 
     panel.openPopup(popAnchor, "", 0, 0, false, false);
 
-    embeddedBrowser.messageManager.sendAsyncMessage("VpnRecommender::load", { ...data, isDarkMode: this.isDarkMode(win) });
+    const isLinux = Services.appinfo.OS === "Linux";
+
+    embeddedBrowser.messageManager.sendAsyncMessage("VpnRecommender::load", { ...data, isDarkMode: this.isDarkMode(win), isLinux });
 
     this.infoUrl = options.infoUrl;
 

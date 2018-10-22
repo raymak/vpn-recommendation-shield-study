@@ -1,7 +1,7 @@
 {
   "name": "Firefox VPN study",
   "description": "A Mozilla Firefox Shield study created to measure interest in a Firefox-approved VPN service.",
-  "version": "0.8",
+  "version": "0.9",
   "manifest_version": 2,
   "applications": {
     "gecko": {
