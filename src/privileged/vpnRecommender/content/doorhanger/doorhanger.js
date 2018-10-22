@@ -42,6 +42,10 @@ function load(data) {
     document.body.classList.add("dark");
   }
 
+  if (data.isLinux) {
+    document.getElementById("message-header").classList.add("linux");
+  }
+
   const primButtonLabel = PRIMARY_BUTTON_LABEL;
   const secButtonLabel = SECONDARY_BUTTON_LABEL;
 
