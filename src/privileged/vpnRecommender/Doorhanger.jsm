@@ -272,11 +272,25 @@ var Doorhanger  = class { // eslint-disable-line no-var
     return popAnchor;
   }
 
+  addWebTab(win, url) {
+    if (win.gBrowser.addWebTab) {
+      return win.gBrowser.addWebTab(url);
+    }
+
+    // Firefox 62
+    const params = {};
+    params.triggeringPrincipal = Services.scriptSecurityManager.createNullPrincipal({
+      userContextId: params.userContextId,
+    });
+
+    return win.gBrowser.addTab(url, params);
+  }
+
   openInfoPage() {
     // temporarily turn off autodismissal for tabs to give enough time for the tab to open
     this._tabAutoDimissalOff = true;
     const win = this.RecentWindow.getMostRecentBrowserWindow();
-    const tab = win.gBrowser.addWebTab(this.infoUrl);
+    const tab = this.addWebTab(win, this.infoUrl);
     win.gBrowser.selectedTab = tab;
     this._tabAutoDimissalOff = false;
   }

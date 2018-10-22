@@ -210,6 +210,20 @@ this.vpnRecommender = class extends ExtensionAPI {
     return promise;
   }
 
+  addWebTab(win, url) {
+    if (win.gBrowser.addWebTab) {
+      return win.gBrowser.addWebTab(url);
+    }
+
+    // Firefox 62
+    const params = {};
+    params.triggeringPrincipal = Services.scriptSecurityManager.createNullPrincipal({
+      userContextId: params.userContextId,
+    });
+
+    return win.gBrowser.addTab(url, params);
+  }
+
   listenForAddonDisableOrUninstall(addonId) {
     let handleDisableOrUninstall;
 
@@ -381,7 +395,7 @@ this.vpnRecommender = class extends ExtensionAPI {
     };
 
     const win = this.RecentWindow.getMostRecentBrowserWindow();
-    const tab = win.gBrowser.addWebTab(mergeQueryArgs(VPN_LANDING_PAGE_URL, urlArgs));
+    const tab = this.addWebTab(win, mergeQueryArgs(VPN_LANDING_PAGE_URL, urlArgs));
     win.gBrowser.selectedTab = tab;
   }
 
