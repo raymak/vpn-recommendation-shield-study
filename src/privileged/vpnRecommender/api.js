@@ -49,7 +49,7 @@ const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 const CATCH_ALL_TRIGGER_TIMER_MINUTES = 10;
 const MAX_NOTIFICATION_COUNT = 3;
 
-const VPN_LANDING_PAGE_URL = "https://dev.psvpn.nonprod.cloudops.mozgcp.net/";
+const VPN_LANDING_PAGE_URL = "https://premium.firefox.com/vpn/";
 const VPN_SUPPORT_URL = "https://support.mozilla.org/en-US/kb/protonvpn";
 const VPN_LANDING_PAGE_DEFAULT_PARAMS = {
   "utm_source": "firefox-browser",
